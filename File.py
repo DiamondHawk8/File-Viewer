@@ -1,8 +1,8 @@
 from pathlib import Path
+import os
+from enum import Enum
 
 class File:
-    from enum import Enum
-    
     # Define an Enum for file types to ensure type consistency and clarity.
     class FileType(Enum):
         IMAGE = 'Image'
@@ -11,7 +11,6 @@ class File:
         DOCUMENT = 'Document'
 
     def __init__(self, file_path, file_type: FileType):
-        self.files_cache = {}  # Cache to store file data
         self.file_path = file_path
         self.file_name = Path(file_path).stem
         self.file_type = file_type
@@ -49,5 +48,5 @@ class File:
 
     def __repr__(self):
         # Representation of the File object for debugging and logging, shows path and type.
-        return f"<File {self.file_path} Type={self.file_type}>"
+        return f"<File {self.file_name} Type={self.file_type.name}>"
 
