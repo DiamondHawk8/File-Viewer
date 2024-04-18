@@ -1,0 +1,28 @@
+{
+  "starred": false,
+  "viewers_can_download": true,
+  "editors_can_edit_access": true,
+  "last_modified_by_any_user": "2024-04-16T17:22:33Z",
+  "last_modified_by_me": "2024-04-16T17:22:33Z",
+  "content_last_modified": "2024-04-16T17:22:33Z",
+  "created": "2024-04-16T17:24:17.184Z",
+  "permissions": [
+    {
+      "id": "03238255851213038922",
+      "name": "Chess Meister",
+      "type": "user",
+      "role": "owner",
+      "kind": "drive#permission",
+      "photo_link": "https://lh3.googleusercontent.com/a/ACg8ocITtDVzTeLNLuYA5LA8LL89acmFg85V6X-h8BdppXgCVG7joQ=s64",
+      "self_link": "https://www.googleapis.com/drive/v2/files/1ccBGR_ZxUy68ZUBEfHw3dpr6WAb7NzZh/permissions/03238255851213038922",
+      "email_address": "lechessmeister@gmail.com",
+      "domain": "gmail.com",
+      "etag": "\"eVOcq8es7QPBtxpNGmd8FKzptWQ\"",
+      "deleted": false,
+      "pending_owner": false
+    }
+  ],
+  "title": "A video1.mp4",
+  "drive_id": "1ccBGR_ZxUy68ZUBEfHw3dpr6WAb7NzZh",
+  "mime_type": "video/mp4"
+}
