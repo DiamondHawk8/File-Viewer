@@ -1,30 +1,53 @@
-import cv2
-from PIL import Image, ImageTk
-from tkinter import Tk, Label, Button, Frame
+import tkinter as tk
+from tkinter import ttk, filedialog
+import vlc
+from platform import system
 
-class MediaViewer:
-    def __init__(self, master):
-        self.master = master
-        self.img_label = Label(master)  # To display images
-        self.img_label.pack()
+class MediaViewer(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.pack(fill=tk.BOTH, expand=1)
 
-    def display_image(self, image_path):
-        """ Load and display an image from the path. """
-        image = Image.open(image_path)
-        photo = ImageTk.PhotoImage(image)
-        self.img_label.config(image=photo)
-        self.img_label.image = photo  # Keep a reference!
+        # VLC player setup
+        self.vlc_instance = vlc.Instance()
+        self.player = self.vlc_instance.media_player_new()
 
-    def play_video(self, video_path):
-        pass
+        # UI setup
+        self.video_panel = ttk.Frame(self)
+        self.canvas = tk.Canvas(self.video_panel, bg='black')
+        self.canvas.pack(fill=tk.BOTH, expand=1)
+        self.video_panel.pack(fill=tk.BOTH, expand=1)
 
-# Sample usage within a GUI context
+        # Controls
+        self.load_button = ttk.Button(self, text="Load Media", command=self.load_media)
+        self.load_button.pack(side=tk.BOTTOM)
+
+    def load_media(self, file_path=None):
+        if not file_path:
+            file_path = filedialog.askopenfilename()
+
+        if file_path:
+            self.play_media(file_path)
+
+    def play_media(self, media_path):
+        # Setup media for VLC player
+        media = self.vlc_instance.media_new(media_path)
+        self.player.set_media(media)
+
+        # Set video output to the widget
+        if system() == "Windows":
+            self.player.set_hwnd(self.canvas.winfo_id())
+        else:
+            self.player.set_xwindow(self.canvas.winfo_id())
+
+        self.player.play()
+
 def main():
-    root = Tk()
+    root = tk.Tk()
+    root.title("Media Viewer")
+    root.geometry("800x600")
     viewer = MediaViewer(root)
-    viewer.display_image("ZTakeoutTest\Takeout\Drive\Images\Cat03.jpg")  # Path to an image in your takeout
-    viewer.play_video("ZTakeoutTest/Takeout/Drive/Videos/A video1.mp4")  # Path to a video in your takeout
     root.mainloop()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
