@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-from File import File  
+from TEMP.File import File  
 
 class FileManager:
     def __init__(self):
