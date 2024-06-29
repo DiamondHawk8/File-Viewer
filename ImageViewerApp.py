@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
-from PIL import Image, ImageTk, ImageOps
+from PIL import Image, ImageTk
+from SmartImage import SmartImage, Group
 
 class ImageViewerApp:
     def __init__(self, root):
@@ -9,8 +10,6 @@ class ImageViewerApp:
 
         root.attributes('-fullscreen', True)
         root.configure(bg='grey') 
-
-        self.zoom_level = 1.0  # Initial zoom level
 
         # Store screen width and height
         self.screen_width = root.winfo_screenwidth()
@@ -44,6 +43,7 @@ class ImageViewerApp:
         self.root.bind('<Down>', self.zoom_out)
 
     def load_image(self):
+        """
         file_path = filedialog.askopenfilename(
             initialdir="/",
             title="Select an Image",
@@ -54,6 +54,13 @@ class ImageViewerApp:
             self.image = Image.open(file_path)
             print(f"Loaded image: {self.image}")  # Debug print
             self.display_image(self.image)
+        """
+        # Debugging
+        file_path = r"ZTakeoutTest\Takeout\Drive\Images\Cat03.jpg"
+        self.image = Image.open(file_path)
+        print(f"Loaded image: {self.image}")  # Debug print
+        self.display_image(self.image)
+
 
     def display_image(self, image):
 
@@ -68,8 +75,11 @@ class ImageViewerApp:
             # Image is taller relative to screen
             scale_factor = self.screen_height / image.height
 
-        new_width = int(image.width * scale_factor * self.zoom_level)
-        new_height = int(image.height * scale_factor * self.zoom_level)
+       # new_width = int(image.width * scale_factor * self.zoom_level)
+       # new_height = int(image.height * scale_factor * self.zoom_level)
+
+        new_width = int(image.width * scale_factor)
+        new_height = int(image.height * scale_factor)
 
         # Resize the image maintaining the aspect ratio
         image = image.resize((new_width, new_height), Image.LANCZOS)
@@ -93,7 +103,7 @@ def testing_method1(event):
         print("Test method 1 called")
 
 def testing_method2():
-        print("Test method 2 called")
+    smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
 
 if __name__ == "__main__":
     root = tk.Tk()
