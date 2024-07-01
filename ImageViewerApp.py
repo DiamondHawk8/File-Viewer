@@ -8,6 +8,10 @@ class ImageViewerApp:
         
         self.root = root
 
+        # Attribute to represent a list of collections
+        self.collections = []
+        
+        # Configurations to make it fullscreen and the background grey
         root.attributes('-fullscreen', True)
         root.configure(bg='grey') 
 
@@ -15,13 +19,40 @@ class ImageViewerApp:
         self.screen_width = root.winfo_screenwidth()
         self.screen_height = root.winfo_screenheight()
 
+        # Set title and set width and height
         self.root.title("Image Viewer")
         self.root.geometry(f'{self.screen_width}x{self.screen_height}')
 
+        # Universal string variable (not currently in use)
         self.entry_var = tk.StringVar()
+
+        # Create and place widgets
         self.create_widgets()
         self.layout_widgets()
+
+        # Bind keys to respective functions
         self.initialize_keybinds()
+
+
+    def load_collections(self, folder_path=None, *collections):
+        if folder_path:
+            # Create a new Collection from the folder path and add it to the list
+            new_collection = Collection(folder_path, "New Collection")
+            new_collection.load_groups()
+            self.collections.append(new_collection)
+
+        for collection in collections:
+            # Add existing Collection objects to the list
+            if isinstance(collection, Collection):
+                self.collections.append(collection)
+
+        # Set initial indices for navigation if colletions has any Collection objects
+        if self.collections:
+            self.current_collection_index = 0
+            self.current_group_index = 0
+            self.current_image_index = 0
+            self.display_current_image()
+
 
 
     def create_widgets(self):
@@ -41,6 +72,8 @@ class ImageViewerApp:
         self.root.bind('<Return>', testing_method1)
         self.root.bind('<Up>', self.zoom_in)
         self.root.bind('<Down>', self.zoom_out)
+
+
 
     def load_image(self):
         """
@@ -62,6 +95,22 @@ class ImageViewerApp:
         self.display_image(self.image)
 
 
+    def display_current_image(self, event = None):
+
+        # Access the current collection
+        current_collection = self.collections[self.current_collection_index]
+        # Access the current group
+        current_group = current_collection[self.current_group_index]
+
+        # Make sure that the index is within the bounds of the number of images in a given group
+        if self.current_image_index >= len(current_collection.groups[self.current_group_index].images):
+            # Retrieve the image at the specified index
+            smart_image = current_group.images[self.current_image_index]
+            self.display_image(smart_image)
+
+
+
+
     def display_image(self, image):
 
         # Calculate the scaling factor to maintain the aspect ratio
@@ -74,6 +123,7 @@ class ImageViewerApp:
         else:
             # Image is taller relative to screen
             scale_factor = self.screen_height / image.height
+
 
        # new_width = int(image.width * scale_factor * self.zoom_level)
        # new_height = int(image.height * scale_factor * self.zoom_level)
@@ -97,6 +147,10 @@ class ImageViewerApp:
         if self.zoom_level > 0.01:
             self.zoom_level -= 0.01  # Decrease zoom level
             self.display_image(self.image)
+
+
+    # consider adding an update method to refresh all of the variables and placed images/widgets
+
 
 
 def testing_method1(event):
