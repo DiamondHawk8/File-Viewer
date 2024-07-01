@@ -3,7 +3,7 @@ import os
 # Hierarchy: Collection > Group > SmartImage
 
 class SmartImage:
-    def __init__(self, path, name, zoom_level = 1.0, panx = 0, pany = 0, series = "", offset = None, weight = 1.0, tags = [], favorite = False ):
+    def __init__(self, path, name, zoom_level = 1.0, panx = 0, pany = 0, series = "", index = 0, offset = None, weight = 1.0, tags = [], favorite = False ):
         self.path = path
         self.name = name
         self.default_zoom_level = zoom_level
@@ -16,7 +16,8 @@ class SmartImage:
         # String representing a series of images that are related
         self.series = series
 
-        # ADD INDEX HERE ----------------------------------------------------------------------------------------
+        # If the image is in a series, this is an index to represent the order the images go in
+        self.index = index
 
         # Another SmartImage object that is an offset of it, EX: Translated version
         self.offset = offset
@@ -27,6 +28,8 @@ class SmartImage:
         # Strings for assisting indexing
         self.tags = tags
         self.favorite = favorite
+
+        # potentially add a preconfig list that has the first 2 integers represent panx and y, then the 3rd represent a zoom etc.
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -42,7 +45,7 @@ class SmartImage:
             print(tag)
 
     def set_zoom_level(self, zoom_level):
-        self.zoom_level = zoom_level
+        self.default_zoom_level = zoom_level
 
     def set_pan(self, panx, pany):
         self.default_panx = panx
@@ -54,13 +57,17 @@ class SmartImage:
         self.panx = self.default_panx
         self.pany = self.default_pany
 
-    def modify(self, name=None, zoom_level=None, panx=None, pany=None, tags=None, favorite=None, weight=None):
+    def modify(self, name=None, zoom_level=None, panx=None, pany=None, series = None, index = None, tags=None, favorite=None, weight=None):
         if name is not None:
             self.name = name
         if zoom_level is not None:
             self.set_zoom_level(zoom_level)
         if panx is not None and pany is not None:
             self.set_pan(panx, pany)
+        if series is not None:
+            self.series = series
+        if index is not None:
+            self.index = index
         if tags is not None:
             self.tags = tags
         if favorite is not None:
