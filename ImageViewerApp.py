@@ -106,10 +106,10 @@ class ImageViewerApp:
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
         # Access the current group
-        current_group = current_collection[self.current_group_index]
+        current_group = current_collection.groups[self.current_group_index]
 
         # Make sure that the index is within the bounds of the number of images in a given group
-        if self.current_image_index < len(current_collection.groups[self.current_group_index].images):
+        if self.current_image_index < len(current_group.images):
             # Retrieve the image at the specified index
             smart_image = current_group.images[self.current_image_index]
             self.display_image(smart_image)
@@ -148,6 +148,8 @@ class ImageViewerApp:
         pass
 
 
+
+# TODO: REFACTOR TO USE ALL SMART_IMAGE ATTRIBUTES  --------------------------------------------------------------------------------------------
     def display_image(self, image):
 
         # Calculate the scaling factor to maintain the aspect ratio
