@@ -3,6 +3,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 from Structures import SmartImage, Group, Collection
 
+# Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+
 class ImageViewerApp:
     def __init__(self, root):
         
@@ -52,6 +54,7 @@ class ImageViewerApp:
             self.current_group_index = 0
             self.current_image_index = 0
 
+            
             """
             When switching groups, it is neccesary to maintain the index of the image the user was looking at for that particular group.
             Therefore, the stored_indicies attribute maintains a dictionary of the group path to its respective index
@@ -195,11 +198,15 @@ class ImageViewerApp:
         self.display_current_image()
 
         
+    def display_image(self, smart_image):
 
+        # Open the image using the path from the SmartImage object
+        image = Image.open(smart_image.path)
 
-
-# TODO: REFACTOR TO USE ALL SMART_IMAGE ATTRIBUTES  --------------------------------------------------------------------------------------------
-    def display_image(self, image):
+        # Retrieve zoom level, panx, and pany from the SmartImage object
+        zoom_level = smart_image.zoom_level
+        panx = smart_image.panx
+        pany = smart_image.pany
 
         # Calculate the scaling factor to maintain the aspect ratio
         screen_ratio = self.screen_width / self.screen_height
@@ -212,20 +219,30 @@ class ImageViewerApp:
             # Image is taller relative to screen
             scale_factor = self.screen_height / image.height
 
-
-       # new_width = int(image.width * scale_factor * self.zoom_level)
-       # new_height = int(image.height * scale_factor * self.zoom_level)
-
-        new_width = int(image.width * scale_factor)
-        new_height = int(image.height * scale_factor)
+        # Calculate new dimensions with zoom level
+        new_width = int(image.width * scale_factor * zoom_level)
+        new_height = int(image.height * scale_factor * zoom_level)
 
         # Resize the image maintaining the aspect ratio
         image = image.resize((new_width, new_height), Image.LANCZOS)
 
-        img = ImageTk.PhotoImage(image) 
-        print(f"Displaying image: {img}")  # Debug print
-        self.image_label.config(image = img)
+        # Create a new blank image with the same size as the screen to apply pan
+        result_image = Image.new("RGB", (self.screen_width, self.screen_height), (128, 128, 128))
+        
+        # Calculate the position to paste the image onto the blank image
+        paste_x = (self.screen_width - new_width) // 2 + panx
+        paste_y = (self.screen_height - new_height) // 2 + pany
+
+        # Paste the resized image onto the blank image
+        result_image.paste(image, (paste_x, paste_y))
+
+        # Convert the final image to a PhotoImage for displaying in the label
+        img = ImageTk.PhotoImage(result_image)
+        self.image_label.config(image=img)
         self.image_label.image = img
+
+
+    # consider adding an update method to refresh all of the variables and placed images/widgets
 
     def zoom_in(self, event=None):
         self.zoom_level += 0.01  # Increase zoom level
@@ -236,13 +253,10 @@ class ImageViewerApp:
             self.zoom_level -= 0.01  # Decrease zoom level
             self.display_image(self.image)
 
-
-    # consider adding an update method to refresh all of the variables and placed images/widgets
-
-
+    def
 
 def testing_method1(event):
-        print("Test method 1 called")
+    smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
 
 def testing_method2():
     smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
