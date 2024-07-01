@@ -29,7 +29,7 @@ class SmartImage:
         self.tags = tags
         self.favorite = favorite
 
-        # potentially add a preconfig list that has the first 2 integers represent panx and y, then the 3rd represent a zoom etc.
+        #TODO potentially add a preconfig list that has the first 2 integers represent panx and y, then the 3rd represent a zoom etc.
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -80,7 +80,9 @@ class SmartImage:
 
     def __repr__(self):
         return (f"SmartImage(name={self.name}, path={self.path}, zoom_level={self.zoom_level}, "
-                f"panx={self.panx}, pany={self.pany}, tags={self.tags}, favorite={self.favorite}, weight={self.weight})")
+            f"panx={self.panx}, pany={self.pany}, series={self.series}, index={self.index}, "
+            f"offset={self.offset}, tags={self.tags}, favorite={self.favorite}, weight={self.weight})")
+
     
 
 class Group:
