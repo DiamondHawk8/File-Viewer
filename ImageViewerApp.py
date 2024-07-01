@@ -51,6 +51,12 @@ class ImageViewerApp:
             self.current_collection_index = 0
             self.current_group_index = 0
             self.current_image_index = 0
+
+            """
+            When switching groups, it is neccesary to maintain the index of the image the user was looking at for that particular group.
+            Therefore, the stored_indicies attribute maintains a dictionary of the group path to its respective index
+            """
+            self.stored_indices = {}
             self.display_current_image()
 
 
@@ -103,12 +109,43 @@ class ImageViewerApp:
         current_group = current_collection[self.current_group_index]
 
         # Make sure that the index is within the bounds of the number of images in a given group
-        if self.current_image_index >= len(current_collection.groups[self.current_group_index].images):
+        if self.current_image_index < len(current_collection.groups[self.current_group_index].images):
             # Retrieve the image at the specified index
             smart_image = current_group.images[self.current_image_index]
             self.display_image(smart_image)
 
+    def next_image(self, event = None):
 
+        # Access the current collection
+        current_collection = self.collections[self.current_collection_index]
+
+        self.current_image_index += 1
+
+        # If the index exceeds the number of images in the group
+        if self.current_image_index >= len(current_collection.groups[self.current_group_index].images):
+            # Wrap Around to the first image in the group
+            self.current_image_index = 0
+        
+        # Display image
+        self.display_current_image()
+
+    def previous_image(self, event = None):
+        
+        # Access the current collection
+        current_collection = self.collections[self.current_collection_index]
+
+        self.current_image_index -= 1
+
+        # If the index goes below zero
+        if self.current_image_index < 0:
+            # Wrap Around to the last image in the group
+            self.current_image_index = len(current_collection.groups[self.current_group_index].images) - 1
+
+        # Display image
+        self.display_current_image()
+
+    def next_group(): 
+        pass
 
 
     def display_image(self, image):
