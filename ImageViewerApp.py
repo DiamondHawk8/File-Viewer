@@ -100,7 +100,7 @@ class ImageViewerApp:
         print(f"Loaded image: {self.image}")  # Debug print
         self.display_image(self.image)
 
-
+    
     def display_current_image(self, event = None):
 
         # Access the current collection
@@ -144,8 +144,57 @@ class ImageViewerApp:
         # Display image
         self.display_current_image()
 
-    def next_group(): 
-        pass
+    def next_group(self, event = None):
+        # Access the current collection
+        current_collection = self.collections[self.current_collection_index]
+        # Access the current group
+        current_group = current_collection.groups[self.current_group_index]
+
+        # Store the current index of the group being swapped from
+        self.stored_indices.update({current_group.name : self.current_image_index})
+
+        self.current_group_index += 1
+
+        # If the index exceeds the number of groups in the collection
+        if self.current_group_index >= len(current_collection.groups):
+            # Wrap around to the first group in the collection
+            self.current_group_index = 0
+        
+        # Check to see if the new group has a stored index, and if so, set current index to such
+        if current_collection.groups[self.current_group_index].name in self.stored_indices:
+            self.current_image_index = self.stored_indices[current_collection.groups[self.current_group_index].name]
+        else:
+            self.current_image_index = 0
+
+        # Display image from next group
+        self.display_current_image()
+            
+    def previous_group(self, event = None):
+        # Access the current collection
+        current_collection = self.collections[self.current_collection_index]
+        # Access the current group
+        current_group = current_collection.groups[self.current_group_index]
+
+        # Store the current index of the group being swapped from
+        self.stored_indices.update({current_group.name : self.current_image_index})
+
+        self.current_group_index -= 1
+
+        # If the index goes below zero
+        if self.current_group_index < 0:
+            # Wrap around to the last group in the collection
+            self.current_group_index = len(current_collection.groups) - 1
+        
+        # Check to see if the new group has a stored index, and if so, set current index to such
+        if current_collection.groups[self.current_group_index].name in self.stored_indices:
+            self.current_image_index = self.stored_indices[current_collection.groups[self.current_group_index].name]
+        else:
+            self.current_image_index = 0
+
+        # Display image from next group
+        self.display_current_image()
+
+        
 
 
 
