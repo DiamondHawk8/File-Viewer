@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
-from SmartImage import SmartImage, Group
+from Structures import SmartImage, Group
 
 class ImageViewerApp:
     def __init__(self, root):
