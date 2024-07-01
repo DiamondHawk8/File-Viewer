@@ -1,8 +1,8 @@
 import os
 from tkinter import Tk, Frame
 from PIL import Image, ImageTk
-import cv2
-from bs4 import BeautifulSoup
+# import cv2
+# from bs4 import BeautifulSoup
 import json
 
 from ui.ui_manager import UIManager
