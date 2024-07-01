@@ -16,6 +16,8 @@ class SmartImage:
         # String representing a series of images that are related
         self.series = series
 
+        # ADD INDEX HERE ----------------------------------------------------------------------------------------
+
         # Another SmartImage object that is an offset of it, EX: Translated version
         self.offset = offset
 
