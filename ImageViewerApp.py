@@ -280,6 +280,11 @@ class ImageViewerApp:
             self.current_collection_index = 0
             self.current_group_index = 0
             self.current_image_index = 0
+            """
+            When switching groups, it is neccesary to maintain the index of the image the user was looking at for that particular group.
+            Therefore, the stored_indicies attribute maintains a dictionary of the group path to its respective index
+            """
+            self.stored_indices = {}
             self.display_current_image()
 
 
