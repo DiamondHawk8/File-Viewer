@@ -81,6 +81,10 @@ class ImageViewerApp:
         self.root.bind('<Return>', testing_method1)
         self.root.bind('<Up>', self.zoom_in)
         self.root.bind('<Down>', self.zoom_out)
+        self.root.bind('<Left>', self.previous_image)
+        self.root.bind('<Right>', self.next_image)
+        self.root.bind('<Control-Shift-Tab>', self.previous_group)
+        self.root.bind('<Shift-Tab>', self.next_group)
 
 
 
@@ -242,7 +246,6 @@ class ImageViewerApp:
         self.image_label.image = img
 
 
-    # consider adding an update method to refresh all of the variables and placed images/widgets
 
     def zoom_in(self, event=None):
         self.zoom_level += 0.01  # Increase zoom level
@@ -252,11 +255,14 @@ class ImageViewerApp:
         if self.zoom_level > 0.01:
             self.zoom_level -= 0.01  # Decrease zoom level
             self.display_image(self.image)
+  
 
-    def
+#TODO consider adding an update method to refresh all of the variables and placed images/widgets
+#TODO Preloading if program is slow
 
 def testing_method1(event):
     smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
+    
 
 def testing_method2():
     smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
