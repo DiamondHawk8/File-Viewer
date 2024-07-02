@@ -89,8 +89,7 @@ class ImageViewerApp:
         self.root.bind('<Control-Shift-Tab>', self.previous_group)
         self.root.bind('<Shift-Tab>', self.next_group)
 
-
-
+    # TESTING METHOD
     def load_image(self):
         """
         file_path = filedialog.askopenfilename(
@@ -110,7 +109,6 @@ class ImageViewerApp:
         print(f"Loaded image: {self.image}")  # Debug print
         self.display_image(self.image)
 
-    
     def display_current_image(self, event = None):
 
         # Access the current collection
@@ -203,7 +201,6 @@ class ImageViewerApp:
 
         # Display image from next group
         self.display_current_image()
-
         
     def display_image(self, smart_image):
 
@@ -251,14 +248,18 @@ class ImageViewerApp:
 
 
     def zoom_in(self, event=None):
-        self.zoom_level += 0.01  # Increase zoom level
-        self.display_image(self.image)
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.zoom_level += 0.01  # Increase zoom level
+        self.display_current_image()
 
     def zoom_out(self, event=None):
-        if self.zoom_level > 0.01:
-            self.zoom_level -= 0.01  # Decrease zoom level
-            self.display_image(self.image)
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        if current_image.zoom_level > 0:
+            current_image.zoom_level -= 0.01  # Decrease zoom level
+            self.display_current_image()
 
+
+    # TESTING ONLY    
     def create_test_collection(self):
         # Create some SmartImage instances with placeholder paths
         image1 = SmartImage(path=r"TestCollection\Group1\Cat03 copy 2.jpg", name="Image 1")
