@@ -35,6 +35,9 @@ class ImageViewerApp:
         # Bind keys to respective functions
         self.initialize_keybinds()
 
+        #TESTING
+        self.create_test_collection()
+
 
     def load_collections(self, folder_path=None, *collections):
         if folder_path:
@@ -255,7 +258,30 @@ class ImageViewerApp:
         if self.zoom_level > 0.01:
             self.zoom_level -= 0.01  # Decrease zoom level
             self.display_image(self.image)
-  
+
+    def create_test_collection(self):
+        # Create some SmartImage instances with placeholder paths
+        image1 = SmartImage(path=r"TestCollection\Group1\Cat03 copy 2.jpg", name="Image 1")
+        image2 = SmartImage(path=r"TestCollection\Group1\Cat03 copy.jpg", name="Image 2")
+        image3 = SmartImage(path=r"TestCollection\Group2\Cat03.jpg", name="Image 3")
+        
+        # Create a Group and add the images to it
+        group1 = Group(folder_path=r"TestCollection\Group1", name="Group 1", images=[image1, image2])
+        group2 = Group(folder_path=r"TestCollection\Group2", name="Group 2", images=[image3])
+        
+        # Create a Collection and add the groups to it
+        test_collection = Collection(base_folder_path="TestCollection", name="Test Collection", groups=[group1, group2])
+        
+        # Add the test collection to the collections list
+        self.collections.append(test_collection)
+
+        # Initialize indices and display the first image
+        if self.collections:
+            self.current_collection_index = 0
+            self.current_group_index = 0
+            self.current_image_index = 0
+            self.display_current_image()
+
 
 #TODO consider adding an update method to refresh all of the variables and placed images/widgets
 #TODO Preloading if program is slow
@@ -264,8 +290,7 @@ def testing_method1(event):
     smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
     
 
-def testing_method2():
-    smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
