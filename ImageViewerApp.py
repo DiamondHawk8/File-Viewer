@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 from PIL import Image, ImageTk
 from Structures import SmartImage, Group, Collection
 
@@ -97,6 +98,7 @@ class ImageViewerApp:
         self.root.bind('<w>', self.pan_up)
         self.root.bind('<s>', self.pan_down)
 
+        self.root.bind('<Control-r>', self.reset)
 
 
     # TESTING METHOD
@@ -287,6 +289,22 @@ class ImageViewerApp:
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.pany += 5
         self.display_current_image()
+
+
+
+
+    # Reset's current image view to default zoom and pan
+    def reset(self, event=None):
+        print("reset called")
+        response = messagebox.askyesno(title="Yes No", message="Do you want to reset this image to its default configuration?")
+        if response:
+            current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+            current_image.panx = current_image.default_panx
+            current_image.pany = current_image.default_pany
+            current_image.zoom_level = current_image.default_zoom_level
+            self.display_current_image()
+        else:   
+            return
 
 
     # TESTING ONLY    
