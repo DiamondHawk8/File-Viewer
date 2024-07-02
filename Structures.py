@@ -29,7 +29,8 @@ class SmartImage:
         self.tags = tags
         self.favorite = favorite
 
-        #TODO potentially add a preconfig list that has the first 2 integers represent panx and y, then the 3rd represent a zoom etc.
+        # A preconfig list that has the first 2 values represent panx and y, then the 3rd represent a zoom
+        self.preconfig = []
 
     def add_tag(self, tag):
         if tag not in self.tags:
