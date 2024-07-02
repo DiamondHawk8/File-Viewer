@@ -82,12 +82,22 @@ class ImageViewerApp:
 
     def initialize_keybinds(self):
         self.root.bind('<Return>', testing_method1)
+
         self.root.bind('<Up>', self.zoom_in)
         self.root.bind('<Down>', self.zoom_out)
+
         self.root.bind('<Left>', self.previous_image)
         self.root.bind('<Right>', self.next_image)
+
         self.root.bind('<Control-Shift-Tab>', self.previous_group)
         self.root.bind('<Shift-Tab>', self.next_group)
+
+        self.root.bind('<a>', self.pan_left)
+        self.root.bind('<d>', self.pan_right)
+        self.root.bind('<w>', self.pan_up)
+        self.root.bind('<s>', self.pan_down)
+
+
 
     # TESTING METHOD
     def load_image(self):
@@ -254,9 +264,29 @@ class ImageViewerApp:
 
     def zoom_out(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
-        if current_image.zoom_level > 0:
+        if current_image.zoom_level > 0.01:
             current_image.zoom_level -= 0.01  # Decrease zoom level
             self.display_current_image()
+
+    def pan_left(self, event=None):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.panx -= 5
+        self.display_current_image()
+
+    def pan_right(self, event=None):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.panx += 5
+        self.display_current_image()
+
+    def pan_up(self, event=None):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.pany -= 5
+        self.display_current_image()
+
+    def pan_down(self, event=None):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.pany += 5
+        self.display_current_image()
 
 
     # TESTING ONLY    
