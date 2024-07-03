@@ -183,3 +183,6 @@ class Collection:
         """String representation of the Collection object for debugging."""
         return (f"Collection(name={self.name}, base_folder_path={self.base_folder_path}, weight={self.weight}, "
                 f"favorite={self.favorite}, groups={len(self.groups)})")
+
+
+#TODO Gif class (inherits from smart image)
