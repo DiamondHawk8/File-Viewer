@@ -87,7 +87,7 @@ class SmartImage:
     
 
 class Group:
-    def __init__(self, folder_path, name, weight=1.0, favorite=False, images=None, subfolders=None):
+    def __init__(self, folder_path, name, weight=1.0, favorite=False, images=None, parent = None, children = None, depth = 0):
         if images is None:
             images = []
         if subfolders is None:
@@ -100,18 +100,24 @@ class Group:
         # List of SmartImage objects at the top level
         self.images = images  
 
-        # Dictionary to store subfolder paths and their images
-        self.subfolders = subfolders  
+        # Parent group reference
+        self.parent = parent
 
-    def add_image(self, image, folder=None):
-        """Add a SmartImage to the group. If a folder is specified, add to subfolder."""
+        # List of child groups
+        self.children = children
+
+        # Depth of the group in the hierarchy (Integer)
+        self.depth = depth
+
+    def add_image(self, image):
         if isinstance(image, SmartImage):
-            if folder is None:
-                self.images.append(image)
-            else:
-                if folder not in self.subfolders:
-                    self.subfolders[folder] = []
-                self.subfolders[folder].append(image)
+            self.images.append(image)   
+
+    def add_child_group(self, child_group):
+        if isinstance(child_group, Group):
+            child_group.parent = self
+            child_group.depth = self.depth + 1
+            self.children.append(child_group)
 
     def load_images(self, folder_path=None, parent_folder=None):
         """Recursively load images from the given folder path and nested subfolders."""
@@ -125,18 +131,20 @@ class Group:
             # Joins the master path with the name of the current item, combining single path, which represents the full path to the item within the directory.
             item_path = os.path.join(folder_path, item)
 
-            # If the item is a folder, recurse into it
+             # If the item is a folder, create a child group and recurse into it
             if os.path.isdir(item_path):
-                self.load_images(item_path, folder=os.path.relpath(item_path, self.folder_path))
+                child_group = Group(item_path, item, parent=self, depth=self.depth + 1)
+                self.add_child_group(child_group)
+                child_group.load_images(item_path)
             
             # If the item is an image, add it to the appropriate list
             elif item.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                self.add_image(SmartImage(item_path, item), folder=parent_folder)
+                self.add_image(SmartImage(item_path, item))
 
     def __repr__(self):
-        """String representation of the Group object for debugging."""
-        return (f"Group(name={self.name}, folder_path={self.folder_path}, weight={self.weight}, "
-                f"favorite={self.favorite}, images={len(self.images)}, subfolders={list(self.subfolders.keys())})")
+        # String representation of the Group object for debugging.
+        return (f"Group(name={self.name}, folder_path={self.folder_path}, weight={self.weight}, favorite={self.favorite}, "
+                f"images={len(self.images)}, children={len(self.children)}, depth={self.depth})")
     
 
 class Collection:
@@ -152,7 +160,7 @@ class Collection:
         self.groups = groups
 
     def add_group(self, group):
-        """Add a Group to the collection."""
+        # Add a Group to the collection.
         if isinstance(group, Group):
             self.groups.append(group)
 
@@ -163,7 +171,7 @@ class Collection:
             if os.path.isdir(folder_path):
                 # Create a new Group for each subfolder in the base folder
                 group = Group(folder_path, folder_name)
-                # Load images for each group
+                # Load images and subfolders for each group
                 group.load_images()  
                 self.add_group(group)
 
