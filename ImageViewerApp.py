@@ -135,6 +135,8 @@ class ImageViewerApp:
         print(f"Loaded image: {self.image}")  # Debug print
         self.display_image(self.image)
 
+# ----------------Display Methods----------------
+
     def display_current_image(self, event = None):
 
         # Access the current collection
@@ -313,35 +315,60 @@ class ImageViewerApp:
     # Reset's current image view to default zoom and pan
     def reset(self, event=None):
         print("reset called")
-        response = messagebox.askokcancel(title="Yes No", message="Do you want to reset this image to its default configuration?")
-        if response:
+        if self.show_dialogs:
+            response = messagebox.askokcancel(title="Yes No", message="Do you want to reset this image to its default configuration?")
+            if response:
+                current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+                current_image.panx = current_image.default_panx
+                current_image.pany = current_image.default_pany
+                current_image.zoom_level = current_image.default_zoom_level
+                self.display_current_image()
+            else:   
+                return
+        else:
             current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
             current_image.panx = current_image.default_panx
             current_image.pany = current_image.default_pany
             current_image.zoom_level = current_image.default_zoom_level
             self.display_current_image()
-        else:   
-            return
+
         
     # Save's whatever the current pan and zoom values are as the default for the image
     def save_default_configuration(self, event=None):
         print("save_default_configuration called")
-        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
-        response = messagebox.askokcancel(title="Confirm", message="Are you sure you want to save these parameters as the default configuration? "
-                                       f"\n Pan x: {current_image.panx} Pan y: {current_image.pany} Zoom: {current_image.zoom_level}" )
-        if response:
+        if self.show_dialogs:
+            current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+            response = messagebox.askokcancel(title="Confirm", message="Are you sure you want to save these parameters as the default configuration? "
+                                        f"\n Pan x: {current_image.panx} Pan y: {current_image.pany} Zoom: {current_image.zoom_level}" )
+            if response:
+                current_image.default_panx = current_image.panx
+                current_image.default_pany = current_image.pany
+                current_image.default_zoom_level = current_image.zoom_level
+            else:   
+                return
+        else:
             current_image.default_panx = current_image.panx
             current_image.default_pany = current_image.pany
             current_image.default_zoom_level = current_image.zoom_level
-        else:   
-            return
+
     
     def save_configuration(self, event=None):
         print("save_configuration called")
-        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
-        response = messagebox.askokcancel(title="Confirm", message="Are you sure you want to save these parameters as a pre-configuration? "
-                                       f"\n Pan x: {current_image.panx} Pan y: {current_image.pany} Zoom: {current_image.zoom_level}" )
-        if response:
+        if self.show_dialogs:
+            current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+            response = messagebox.askokcancel(title="Confirm", message="Are you sure you want to save these parameters as a pre-configuration? "
+                                        f"\n Pan x: {current_image.panx} Pan y: {current_image.pany} Zoom: {current_image.zoom_level}" )
+            if response:
+                # Ensure the preconfig list is initialized and has at least 3 elements
+                if not hasattr(current_image, 'preconfig') or len(current_image.preconfig) < 3:
+                    current_image.preconfig = [0, 0, 1.0]  
+
+                current_image.preconfig[0] = current_image.panx
+                current_image.preconfig[1] = current_image.pany
+                current_image.preconfig[2] = current_image.zoom_level
+            else:   
+                return
+        else:
             # Ensure the preconfig list is initialized and has at least 3 elements
             if not hasattr(current_image, 'preconfig') or len(current_image.preconfig) < 3:
                 current_image.preconfig = [0, 0, 1.0]  
@@ -349,25 +376,31 @@ class ImageViewerApp:
             current_image.preconfig[0] = current_image.panx
             current_image.preconfig[1] = current_image.pany
             current_image.preconfig[2] = current_image.zoom_level
-        else:   
-            return
-        
+    
     def load_configuration(self, event=None):
         print("save_configuration called")
-        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
-        response = messagebox.askokcancel(title="Confirm", message="Are you sure you want to load this image's preconfig? "
-                                       f"\n Pan x: {current_image.preconfig[0]} Pan y: {current_image.preconfig[1]} Zoom: {current_image.preconfig[2]}" )
-        if response:
+        if self.show_dialogs:
+            current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+            response = messagebox.askokcancel(title="Confirm", message="Are you sure you want to load this image's preconfig? "
+                                        f"\n Pan x: {current_image.preconfig[0]} Pan y: {current_image.preconfig[1]} Zoom: {current_image.preconfig[2]}" )
+            if response:
+                current_image.panx = current_image.preconfig[0]
+                current_image.pany = current_image.preconfig[1]
+                current_image.zoom_level = current_image.preconfig[2]
+                self.display_current_image()
+            else:   
+                return
+        else:
             current_image.panx = current_image.preconfig[0]
             current_image.pany = current_image.preconfig[1]
             current_image.zoom_level = current_image.preconfig[2]
             self.display_current_image()
-        else:   
-            return
+
 
     # In case defaults ever get set to bad values, this method will reset them to 0 0 1.0
     def default_reset(self, event=None):
         print("default_reset called")
+        # This method will always show dialogs
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         response = messagebox.askokcancel(title="Confirm", message="Are you sure you want to reset this image to default default?"
                                        f"\n Pan x: 0 Pan y: 0 Zoom:1.0" )
