@@ -4,7 +4,10 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 from Structures import SmartImage, Group, Collection
 
+import pdb
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+
+
 
 class ImageViewerApp:
     def __init__(self, root):
@@ -40,7 +43,8 @@ class ImageViewerApp:
         self.initialize_keybinds()
 
         #TESTING
-        self.create_test_collection()
+        # self.create_test_collection()
+        self.load_collections("ZTakeoutTest\Takeout\Drive")
 
 
     def load_collections(self, folder_path=None, *collections):
@@ -49,6 +53,7 @@ class ImageViewerApp:
             new_collection = Collection(folder_path, "New Collection")
             new_collection.load_groups()
             self.collections.append(new_collection)
+            
 
         for collection in collections:
             # Add existing Collection objects to the list
@@ -70,19 +75,81 @@ class ImageViewerApp:
             self.display_current_image()
 
 
-
     def create_widgets(self):
 
         # Label that holds the image
         self.image_label = tk.Label(self.root, padx = 0, pady = 0, bg = 'grey')
-
+        
         self.load_button = tk.Button(self.root, text="Load Image", command=self.load_image)
+
         # self.filter_button = tk.Button(self.root, text="Apply Grayscale", command=self.apply_filter)
+
+        """IMAGE DETAIL WIDGETS"""
+        self.image_details = tk.Frame(self.root, bg = "gainsboro", relief = tk.GROOVE, padx = 10, pady = 10)
+        self.image_details_advanced = tk.Frame(self.root, bg = "gainsboro", relief = tk.GROOVE, padx = 10, pady = 10)
+
+        # Basic image details labels
+        self.label_name = tk.Label(self.image_details, text="Name:", bg="gainsboro")
+        self.label_group = tk.Label(self.image_details, text="Group:", bg="gainsboro")
+        self.label_tags = tk.Label(self.image_details, text="Tags:", bg="gainsboro")
+        self.label_favorite = tk.Label(self.image_details, text="Favorite:", bg="gainsboro")
+
+        self.label_name_value = tk.Label(self.image_details, text="", bg="gainsboro")
+        self.label_group_value = tk.Label(self.image_details, text="", bg="gainsboro")
+        self.label_tags_value = tk.Label(self.image_details, text="", bg="gainsboro")
+        self.label_favorite_value = tk.Label(self.image_details, text="", bg="gainsboro")
+
+        # Advanced image details labels
+        self.label_zoom = tk.Label(self.image_details_advanced, text="Zoom Level:", bg="gainsboro")
+        self.label_panx = tk.Label(self.image_details_advanced, text="Pan X:", bg="gainsboro")
+        self.label_pany = tk.Label(self.image_details_advanced, text="Pan Y:", bg="gainsboro")
+        self.label_weight = tk.Label(self.image_details_advanced, text="Weight:", bg="gainsboro")
+        self.label_series = tk.Label(self.image_details_advanced, text="Series:", bg="gainsboro")
+        self.label_index = tk.Label(self.image_details_advanced, text="Index:", bg="gainsboro")
+
+        self.label_zoom_value = tk.Label(self.image_details_advanced, text="", bg="gainsboro")
+        self.label_panx_value = tk.Label(self.image_details_advanced, text="", bg="gainsboro")
+        self.label_pany_value = tk.Label(self.image_details_advanced, text="", bg="gainsboro")
+        self.label_weight_value = tk.Label(self.image_details_advanced, text="", bg="gainsboro")
+        self.label_series_value = tk.Label(self.image_details_advanced, text="", bg="gainsboro")
+        self.label_index_value = tk.Label(self.image_details_advanced, text="", bg="gainsboro")
+
 
     def layout_widgets(self):
         self.image_label.pack()
         self.load_button.pack(side=tk.LEFT) 
         # self.filter_button.pack(side=tk.LEFT)
+
+
+
+        """IMAGE DETAIL WIDGETS"""
+        # Pack the frames
+        self.image_details.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.image_details_advanced.place(relx=1.0, rely=0.9, anchor=tk.NE)
+
+        # Pack the basic details labels
+        self.label_name.grid(row=0, column=0, sticky=tk.W)
+        self.label_name_value.grid(row=0, column=1, sticky=tk.W)
+        self.label_group.grid(row=1, column=0, sticky=tk.W)
+        self.label_group_value.grid(row=1, column=1, sticky=tk.W)
+        self.label_tags.grid(row=2, column=0, sticky=tk.W)
+        self.label_tags_value.grid(row=2, column=1, sticky=tk.W)
+        self.label_favorite.grid(row=3, column=0, sticky=tk.W)
+        self.label_favorite_value.grid(row=3, column=1, sticky=tk.W)
+
+        # Pack the advanced details labels
+        self.label_zoom.grid(row=0, column=0, sticky=tk.W)
+        self.label_zoom_value.grid(row=0, column=1, sticky=tk.W)
+        self.label_panx.grid(row=1, column=0, sticky=tk.W)
+        self.label_panx_value.grid(row=1, column=1, sticky=tk.W)
+        self.label_pany.grid(row=2, column=0, sticky=tk.W)
+        self.label_pany_value.grid(row=2, column=1, sticky=tk.W)
+        self.label_weight.grid(row=3, column=0, sticky=tk.W)
+        self.label_weight_value.grid(row=3, column=1, sticky=tk.W)
+        self.label_series.grid(row=4, column=0, sticky=tk.W)
+        self.label_series_value.grid(row=4, column=1, sticky=tk.W)
+        self.label_index.grid(row=5, column=0, sticky=tk.W)
+        self.label_index_value.grid(row=5, column=1, sticky=tk.W)
 
     def initialize_keybinds(self):
         self.root.bind('<Return>', testing_method1)
@@ -454,3 +521,27 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ImageViewerApp(root)
     root.mainloop()
+
+
+"""
+def print_collection_details(collection):
+    for group in collection.groups:
+        print(f"Group: {group.name}, Depth: {group.depth}, Images: {len(group.images)}")
+        for image in group.images:
+            print(f"  Image: {image.name}, Path: {image.path}")
+        if group.children:
+            print_child_groups(group.children)
+
+def print_child_groups(children, level=1):
+    for child in children:
+        indent = "  " * level
+        print(f"{indent}Child Group: {child.name}, Depth: {child.depth}, Images: {len(child.images)}")
+        for image in child.images:
+            print(f"{indent}  Image: {image.name}, Path: {image.path}")
+        if child.children:
+            print_child_groups(child.children, level + 1)
+
+
+
+
+"""
