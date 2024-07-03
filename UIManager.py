@@ -4,6 +4,8 @@ import tkinter as tk
 class UIManager:
     def __init__(self, root, update_callback):
         self.root = root
+
+        # Attribute for advanced updates
         self.update_callback = update_callback
 
         # Create frames for image details
@@ -93,3 +95,6 @@ class UIManager:
         self.weight_var.set(str(image.weight))
         self.series_var.set(image.series)
         self.index_var.set(str(image.index))
+
+        # Call the update callback to notify ImageViewerApp
+        self.update_callback()

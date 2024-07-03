@@ -3,7 +3,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from Structures import SmartImage, Group, Collection
-
+from UIManager import UIManager
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
 
@@ -34,9 +34,14 @@ class ImageViewerApp:
         # Universal string variable (not currently in use)
         self.entry_var = tk.StringVar()
 
-        # Create and place widgets
+        # Create and place base image widget
         self.create_widgets()
         self.layout_widgets()
+
+        # Layout the more advanced widgets
+        self.ui_manager = UIManager(root, self.update_widgets)
+        self.ui_manager.layout_widgets()
+
 
         # Bind keys to respective functions
         self.initialize_keybinds()
@@ -81,6 +86,10 @@ class ImageViewerApp:
 
     def layout_widgets(self):
         self.image_label.pack()
+
+    # to handle updates from UIManager if needed
+    def update_widgets(self):
+        pass
 
 
     def initialize_keybinds(self):
@@ -128,6 +137,7 @@ class ImageViewerApp:
             # Retrieve the image at the specified index
             smart_image = current_group.images[self.current_image_index]
             self.display_image(smart_image)
+            self.ui_manager.update_image_details(smart_image)
 
     def next_image(self, event = None):
 

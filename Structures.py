@@ -3,9 +3,10 @@ import os
 # Hierarchy: Collection > Group > SmartImage
 
 class SmartImage:
-    def __init__(self, path, name, zoom_level = 1.0, panx = 0, pany = 0, series = "", index = 0, offset = None, weight = 1.0, tags = [], favorite = False ):
+    def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False):
         self.path = path
         self.name = name
+        self.group = group  # Reference to the parent group
         self.default_zoom_level = zoom_level
         self.zoom_level = zoom_level
         self.default_panx = panx
@@ -23,7 +24,7 @@ class SmartImage:
         self.offset = offset
 
         # Rarity modifier for when true random draw is used 
-        self.weight = 1.0
+        self.weight = weight
 
         # Strings for assisting indexing
         self.tags = tags
@@ -51,14 +52,13 @@ class SmartImage:
     def set_pan(self, panx, pany):
         self.default_panx = panx
         self.default_pany = pany
-        
 
     def reset_zoom_pan(self):
         self.zoom_level = self.default_zoom_level
         self.panx = self.default_panx
         self.pany = self.default_pany
 
-    def modify(self, name=None, zoom_level=None, panx=None, pany=None, series = None, index = None, tags=None, favorite=None, weight=None):
+    def modify(self, name=None, zoom_level=None, panx=None, pany=None, series=None, index=None, tags=None, favorite=None, weight=None):
         if name is not None:
             self.name = name
         if zoom_level is not None:
@@ -80,9 +80,10 @@ class SmartImage:
         self.favorite = not self.favorite
 
     def __repr__(self):
-        return (f"SmartImage(name={self.name}, path={self.path}, zoom_level={self.zoom_level}, "
-            f"panx={self.panx}, pany={self.pany}, series={self.series}, index={self.index}, "
-            f"offset={self.offset}, tags={self.tags}, favorite={self.favorite}, weight={self.weight})")
+        return (f"SmartImage(name={self.name}, path={self.path}, group={self.group}, zoom_level={self.zoom_level}, "
+                f"panx={self.panx}, pany={self.pany}, series={self.series}, index={self.index}, "
+                f"offset={self.offset}, tags={self.tags}, favorite={self.favorite}, weight={self.weight})")
+
 
     
 
@@ -95,10 +96,10 @@ class Group:
         self.folder_path = folder_path
         self.name = name  
         self.weight = weight 
-        self.favorite = favorite 
+        self.favorite = favorite
 
         # List of SmartImage objects at the top level
-        self.images = images  
+        self.images = images
 
         # Parent group reference
         self.parent = parent
@@ -112,7 +113,7 @@ class Group:
     def add_image(self, image):
         """Add a SmartImage to the group."""
         if isinstance(image, SmartImage):
-            self.images.append(image)   
+            self.images.append(image)
 
     def add_child_group(self, child_group):
         """Add a child group to the group."""
@@ -138,15 +139,16 @@ class Group:
                 child_group = Group(item_path, item, parent=self, depth=self.depth + 1)
                 self.add_child_group(child_group)
                 child_group.load_images(item_path)
-            
+
             # If the item is an image, add it to the appropriate list
             elif item.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                self.add_image(SmartImage(item_path, item))
+                self.add_image(SmartImage(item_path, item, group=self.name))
 
     def __repr__(self):
         # String representation of the Group object for debugging.
         return (f"Group(name={self.name}, folder_path={self.folder_path}, weight={self.weight}, favorite={self.favorite}, "
                 f"images={len(self.images)}, children={len(self.children)}, depth={self.depth})")
+
 
 
 class Collection:
@@ -162,7 +164,7 @@ class Collection:
         self.groups = groups
 
     def add_group(self, group):
-        # Add a Group to the collection.
+        """Add a Group to the collection."""
         if isinstance(group, Group):
             self.groups.append(group)
 
