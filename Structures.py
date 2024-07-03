@@ -87,11 +87,11 @@ class SmartImage:
     
 
 class Group:
-    def __init__(self, folder_path, name, weight=1.0, favorite=False, images=None, parent = None, children = None, depth = 0):
+    def __init__(self, folder_path, name, weight=1.0, favorite=False, images=None, parent=None, children=None, depth=0):
         if images is None:
             images = []
-        if subfolders is None:
-            subfolders = {}
+        if children is None:
+            children = []
         self.folder_path = folder_path
         self.name = name  
         self.weight = weight 
@@ -110,10 +110,12 @@ class Group:
         self.depth = depth
 
     def add_image(self, image):
+        """Add a SmartImage to the group."""
         if isinstance(image, SmartImage):
             self.images.append(image)   
 
     def add_child_group(self, child_group):
+        """Add a child group to the group."""
         if isinstance(child_group, Group):
             child_group.parent = self
             child_group.depth = self.depth + 1
@@ -131,7 +133,7 @@ class Group:
             # Joins the master path with the name of the current item, combining single path, which represents the full path to the item within the directory.
             item_path = os.path.join(folder_path, item)
 
-             # If the item is a folder, create a child group and recurse into it
+            # If the item is a folder, create a child group and recurse into it
             if os.path.isdir(item_path):
                 child_group = Group(item_path, item, parent=self, depth=self.depth + 1)
                 self.add_child_group(child_group)
@@ -145,7 +147,7 @@ class Group:
         # String representation of the Group object for debugging.
         return (f"Group(name={self.name}, folder_path={self.folder_path}, weight={self.weight}, favorite={self.favorite}, "
                 f"images={len(self.images)}, children={len(self.children)}, depth={self.depth})")
-    
+
 
 class Collection:
     def __init__(self, base_folder_path, name, weight=1.0, favorite=False, groups=None):
