@@ -308,6 +308,7 @@ class ImageViewerApp:
     def toggle_dialogs(self, event=None):
         self.show_dialogs = not self.show_dialogs
 
+    #TODO Refactor the below methods to use show_dialogs
 
     # Reset's current image view to default zoom and pan
     def reset(self, event=None):
