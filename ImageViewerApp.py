@@ -306,14 +306,13 @@ class ImageViewerApp:
         current_image.pany += 5
         self.display_current_image()
 
+# ----------------Configuaration Management Methods----------------
 
     def toggle_dialogs(self, event=None):
         self.show_dialogs = not self.show_dialogs
 
-    #TODO Refactor the below methods to use show_dialogs
-
-    # Reset's current image view to default zoom and pan
     def reset(self, event=None):
+        """Reset's current image view to default zoom and pan"""
         print("reset called")
         if self.show_dialogs:
             response = messagebox.askokcancel(title="Yes No", message="Do you want to reset this image to its default configuration?")
@@ -332,9 +331,8 @@ class ImageViewerApp:
             current_image.zoom_level = current_image.default_zoom_level
             self.display_current_image()
 
-        
-    # Save's whatever the current pan and zoom values are as the default for the image
     def save_default_configuration(self, event=None):
+        """Save's whatever the current pan and zoom values are as the default for the image"""
         print("save_default_configuration called")
         if self.show_dialogs:
             current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
@@ -351,7 +349,6 @@ class ImageViewerApp:
             current_image.default_pany = current_image.pany
             current_image.default_zoom_level = current_image.zoom_level
 
-    
     def save_configuration(self, event=None):
         print("save_configuration called")
         if self.show_dialogs:
@@ -396,9 +393,8 @@ class ImageViewerApp:
             current_image.zoom_level = current_image.preconfig[2]
             self.display_current_image()
 
-
-    # In case defaults ever get set to bad values, this method will reset them to 0 0 1.0
     def default_reset(self, event=None):
+        """In case defaults ever get set to bad values, this method will reset them to 0 0 1.0"""
         print("default_reset called")
         # This method will always show dialogs
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
@@ -411,6 +407,10 @@ class ImageViewerApp:
         else:   
             return
     
+
+
+
+
     # TESTING ONLY    
     def create_test_collection(self):
         # Create some SmartImage instances with placeholder paths
