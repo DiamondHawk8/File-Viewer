@@ -122,6 +122,10 @@ class ImageViewerApp:
 
         self.root.bind('<Control-Shift-R>', self.default_reset)
 
+        # UI binds
+        self.root.bind('<Control-t>', self.toggle_ui_elements)
+        #TODO Toggle dialogs
+
 
 # ----------------Display Methods----------------
 
@@ -396,7 +400,10 @@ class ImageViewerApp:
         else:   
             return
     
+# ----------------UI Methods----------------
 
+    def toggle_ui_elements(self, event=None):
+        self.ui_manager.toggle_details()
 
 
 

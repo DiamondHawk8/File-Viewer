@@ -36,6 +36,7 @@ class UIManager:
         self.weight_var = tk.StringVar()
         self.series_var = tk.StringVar()
         self.index_var = tk.StringVar()
+        self.path_var = tk.StringVar()
 
         # Advanced image details labels
         self.label_zoom = tk.Label(self.image_details_advanced, text="Zoom Level:", bg="gainsboro")
@@ -44,6 +45,7 @@ class UIManager:
         self.label_weight = tk.Label(self.image_details_advanced, text="Weight:", bg="gainsboro")
         self.label_series = tk.Label(self.image_details_advanced, text="Series:", bg="gainsboro")
         self.label_index = tk.Label(self.image_details_advanced, text="Index:", bg="gainsboro")
+        self.label_path = tk.Label(self.image_details_advanced, text="Path:", bg="gainsboro")
 
         self.label_zoom_value = tk.Label(self.image_details_advanced, textvariable=self.zoom_var, bg="gainsboro")
         self.label_panx_value = tk.Label(self.image_details_advanced, textvariable=self.panx_var, bg="gainsboro")
@@ -51,11 +53,12 @@ class UIManager:
         self.label_weight_value = tk.Label(self.image_details_advanced, textvariable=self.weight_var, bg="gainsboro")
         self.label_series_value = tk.Label(self.image_details_advanced, textvariable=self.series_var, bg="gainsboro")
         self.label_index_value = tk.Label(self.image_details_advanced, textvariable=self.index_var, bg="gainsboro")
+        self.label_path_value = tk.Label(self.image_details_advanced, textvariable=self.path_var, bg="gainsboro")
 
     def layout_widgets(self):
         # Pack the frames
-        self.image_details.pack(side=tk.TOP, fill=tk.X)
-        self.image_details_advanced.pack(side=tk.TOP, fill=tk.X)
+       # self.image_details.place(anchor=tk.NE, relx=0.95, rely=0.05)
+        #self.image_details_advanced.place(anchor=tk.NW, relx=0, rely=0.05)
 
         # Pack the basic details labels
         self.label_name.grid(row=0, column=0, sticky=tk.W)
@@ -80,6 +83,12 @@ class UIManager:
         self.label_series_value.grid(row=4, column=1, sticky=tk.W)
         self.label_index.grid(row=5, column=0, sticky=tk.W)
         self.label_index_value.grid(row=5, column=1, sticky=tk.W)
+        self.label_path.grid(row=6, column=0, sticky=tk.W)
+        self.label_path_value.grid(row=6, column=1, sticky=tk.W)
+
+        # Boolean attributes for toggleable UI elements
+        self.details_visible = False
+        
 
     def update_image_details(self, image):
         # Update the basic details
@@ -95,6 +104,16 @@ class UIManager:
         self.weight_var.set(str(image.weight))
         self.series_var.set(image.series)
         self.index_var.set(str(image.index))
+        self.path_var.set(str(image.path))
 
         # Call the update callback to notify ImageViewerApp
         self.update_callback()
+
+    def toggle_details(self):
+        if self.details_visible:
+            self.image_details.place_forget()
+            self.image_details_advanced.place_forget()
+        else:
+            self.image_details.place(anchor=tk.NE, relx=0.95, rely=0.05)
+            self.image_details_advanced.place(anchor=tk.NW, relx=0, rely=0.05)
+        self.details_visible = not self.details_visible
