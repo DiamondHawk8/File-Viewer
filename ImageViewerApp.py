@@ -42,13 +42,20 @@ class ImageViewerApp:
         self.ui_manager = UIManager(root, self.update_widgets)
         self.ui_manager.layout_widgets()
 
-
         # Bind keys to respective functions
         self.initialize_keybinds()
 
+
+
         #TESTING
         # self.create_test_collection()
+
         self.load_collections("ZTakeoutTest\Takeout\Drive")
+
+        # Create notebook with groups from current collection
+        if self.collections:
+            self.ui_manager.create_notebook(self.collections[self.current_collection_index].groups) 
+
 
 
     def load_collections(self, folder_path=None, *collections):
