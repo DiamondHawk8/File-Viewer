@@ -212,14 +212,14 @@ class UIManager:
         if self.notebook_visible:
             self.notebook.place_forget()
         else:
-            self.notebook.place(relx=0.0, rely=0.0, anchor=tk.NW, relwidth=100)
+            self.notebook.place(relx=0.0, rely=0.0, anchor=tk.NW, relwidth=1)
         self.notebook_visible = not self.notebook_visible
     
     def toggle_controls(self, event = None):
         if self.image_controls_visible:
             self.controls.place_forget()
         else:
-            self.controls.place(relx=0.0, rely=1.0, anchor=tk.SW, relwidth=100)
+            self.controls.place(relx=0.0, rely=1.0, anchor=tk.SW, width=290)
         self.image_controls_visible = not self.image_controls_visible
 
     def toggle_tag(self, event = None):

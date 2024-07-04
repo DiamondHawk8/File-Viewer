@@ -139,6 +139,7 @@ class ImageViewerApp:
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_details)
         self.root.bind('<Control-Key-3>', self.ui_manager.toggle_adv_details)
         self.root.bind('<Control-Key-4>', self.ui_manager.toggle_controls)
+        self.root.bind('<Control-Key-5>', self.ui_manager.toggle_tag)
      
         # Notebook/tab binding
         self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
