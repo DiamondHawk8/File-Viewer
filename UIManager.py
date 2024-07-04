@@ -242,7 +242,6 @@ class UIManager:
                         start, end = map(int, range_text.split(','))
                         self.update_callback("add_range", tags, start, end)
                     else:
-                        print("TESTING, ading to current")
                         self.update_callback("add_current", tags)
                 except ValueError:
                     print("Invalid range format. Use '-x,y' format.")

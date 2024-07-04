@@ -34,7 +34,6 @@ class SmartImage:
         self.preconfig = []
 
     def add_tag(self, tags):
-        print(f"adding tags: {tags}")
         for tag in tags.split(','):
             tag = tag.strip()
             tag = tag.lower()

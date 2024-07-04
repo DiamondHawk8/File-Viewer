@@ -8,7 +8,6 @@ from UIManager import UIManager
 
 # TODO close groups and reopen
 # TODO fix the way transparent images display (potentially offer different bg options)
-# TODO Tag adding widget, with tag application within range or applied to entire group
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
@@ -100,13 +99,11 @@ class ImageViewerApp:
         self.image_label.pack()
 
     def update_widgets(self, mode=None, tags=None, start=None, end=None):
-        print(f"AT UPDATE, MODE: {mode}")
         if mode == "add_group":
             self.add_tags_to_group(tags)
         elif mode == "add_range":
             self.add_tags_to_range(tags, start, end)
         elif mode == "add_current":
-            print("AAA")
             self.add_tags_to_current(tags)
         elif mode == "remove_group":
             self.remove_tags_from_group(tags)
@@ -115,7 +112,7 @@ class ImageViewerApp:
         elif mode == "remove_current":
             self.remove_tags_from_current(tags)
         
-        # Kinda lazy, but im just going to leave this here, its to make the notebook reflect what group you're in
+        # Kinda lazy, but im just going to leave this here, to always run when this method is called, its to make the notebook reflect what group you're in
         current_group_name = self.collections[self.current_collection_index].groups[self.current_group_index].name
         self.ui_manager.update_notebook(current_group_name)
 
@@ -493,7 +490,6 @@ class ImageViewerApp:
     def add_tags_to_current(self, tags):
         
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
-        print(f"TESTING SECOND, adding tags to {current_image}")
         current_image.add_tag(tags)
         self.ui_manager.update_image_details(current_image)
 
@@ -501,7 +497,7 @@ class ImageViewerApp:
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         for image in current_group.images:
             image.remove_tag(tags)
-
+        
     def remove_tags_from_range(self, tags, start, end):
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         current_index = self.current_image_index
