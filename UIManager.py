@@ -19,6 +19,7 @@ class UIManager:
         self.details_visible = False
 
     def create_notebook(self, groups):
+        # Add all groups to the notebook
         print("Method called")
         for group in groups:
             tab = tk.Frame(self.notebook)
