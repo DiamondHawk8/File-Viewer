@@ -45,11 +45,6 @@ class ImageViewerApp:
         # Bind keys to respective functions
         self.initialize_keybinds()
 
-
-
-        #TESTING
-        # self.create_test_collection()
-
         self.load_collections("ZTakeoutTest\Takeout\Drive")
 
         # Create notebook with groups from current collection
@@ -94,8 +89,8 @@ class ImageViewerApp:
     def layout_widgets(self):
         self.image_label.pack()
 
-    # to handle updates from UIManager if needed
     def update_widgets(self):
+        # to handle updates from UIManager if needed
         current_group_name = self.collections[self.current_collection_index].groups[self.current_group_index].name
         self.ui_manager.update_notebook(current_group_name)
 
@@ -133,12 +128,16 @@ class ImageViewerApp:
         self.root.bind('<Control-Shift-R>', self.default_reset)
 
         # --- UI binds ---
-        self.root.bind('<Control-t>', self.toggle_ui_elements)
+        self.root.bind('<Control-Key-1>', self.ui_manager.toggle_notebook)
+        self.root.bind('<Control-Key-2>', self.ui_manager.toggle_details)
+        self.root.bind('<Control-Key-3>', self.ui_manager.toggle_adv_details)
+        self.root.bind('<Control-Key-4>', self.ui_manager.toggle_controls)
+     
         # Notebook/tab binding
         self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
         
-
         #TODO Toggle dialogs
+        
 
 
 # ----------------Display Methods----------------
@@ -417,8 +416,6 @@ class ImageViewerApp:
     
 # ----------------UI Methods----------------
 
-    def toggle_ui_elements(self, event=None):
-        self.ui_manager.toggle_details()
 
     def on_tab_change(self, event):
         # Notebook/tab change method

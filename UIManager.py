@@ -18,8 +18,17 @@ class UIManager:
         # Create frames for image details
         self.initialize_detail_frames()
 
+        # Create frame for inmage control menu
+        self.initialize_image_controls_frame()
+
+        self.layout_widgets()
+
         # Boolean attributes for toggleable UI elements
         self.details_visible = False
+        self.details_adv_visible = False
+        self.notebook_visible = False
+        self.image_controls_visible = False
+
 
     def create_notebook(self, groups):
         # Add all groups to the notebook
@@ -37,7 +46,6 @@ class UIManager:
             if self.notebook.tab(tab_id, "text") == current_group_name:
                 self.notebook.select(i)
                 break
-
 
     def initialize_detail_frames(self):
         self.image_details = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
@@ -85,11 +93,17 @@ class UIManager:
         self.label_series_value = tk.Label(self.image_details_advanced, textvariable=self.series_var, bg="gainsboro")
         self.label_index_value = tk.Label(self.image_details_advanced, textvariable=self.index_var, bg="gainsboro")
         self.label_path_value = tk.Label(self.image_details_advanced, textvariable=self.path_var, bg="gainsboro")
-    
+
+    def initialize_image_controls_frame(self):
+
+        self.controls = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
+        self.reset_button = tk.Button(self.controls, text="Reset", command=lambda: self.root.event_generate('<Control-r>'))
+        self.save_default_button = tk.Button(self.controls, text="Save Default", command=lambda: self.root.event_generate('<Control-Shift-s>'))
+        self.save_button = tk.Button(self.controls, text="Save", command=lambda: self.root.event_generate('<Control-s>'))
+        self.load_button = tk.Button(self.controls, text="Load", command=lambda: self.root.event_generate('<Control-l>'))
+        self.default_reset_button = tk.Button(self.controls, text="Default Reset", command=lambda: self.root.event_generate('<Control-Shift-R>'))
+
     def layout_widgets(self):
-        # Pack the frames
-       # self.image_details.place(anchor=tk.NE, relx=0.95, rely=0.05)
-        #self.image_details_advanced.place(anchor=tk.NW, relx=0, rely=0.05)
 
         # Pack the basic details labels
         self.label_name.grid(row=0, column=0, sticky=tk.W)
@@ -117,6 +131,14 @@ class UIManager:
         self.label_path.grid(row=6, column=0, sticky=tk.W)
         self.label_path_value.grid(row=6, column=1, sticky=tk.W)
 
+        # Controls menu
+        self.reset_button.pack(side=tk.LEFT)
+        self.save_default_button.pack(side=tk.LEFT)
+        self.save_button.pack(side=tk.LEFT)
+        self.load_button.pack(side=tk.LEFT)
+        self.default_reset_button.pack(side=tk.LEFT)
+
+
     def update_image_details(self, image):
         # Update the basic details
         self.name_var.set(image.name)
@@ -140,15 +162,36 @@ class UIManager:
             """No operation event handler to disable key traversal."""
             return "break"
 
-    # TODO make seperate toggles for each
-    def toggle_details(self):
+# ----------------Toggle Methods----------------
+
+    def toggle_details(self, event = None):
         if self.details_visible:
             self.image_details.place_forget()
-            self.image_details_advanced.place_forget()
-            self.notebook.place_forget()
         else:
             self.image_details.place(anchor=tk.NE, relx=0.95, rely=0.05)
-            self.image_details_advanced.place(anchor=tk.NW, relx=0, rely=0.05)
-            self.notebook.place(relx=0.0, rely=0.0, anchor=tk.NW, relwidth=100)
-            self.notebook.lift()
         self.details_visible = not self.details_visible
+
+    def toggle_adv_details(self, event = None):
+        if self.details_adv_visible:
+            self.image_details_advanced.place_forget()
+        else:
+            self.image_details_advanced.place(anchor=tk.NW, relx=0, rely=0.05)
+        self.details_adv_visible = not self.details_adv_visible
+
+    def toggle_notebook(self, event = None):
+        if self.notebook_visible:
+            self.notebook.place_forget()
+        else:
+            self.notebook.place(relx=0.0, rely=0.0, anchor=tk.NW, relwidth=100)
+        self.notebook_visible = not self.notebook_visible
+    
+    def toggle_controls(self, event = None):
+        if self.image_controls_visible:
+            self.controls.place_forget()
+        else:
+            self.controls.place(relx=0.0, rely=1.0, anchor=tk.SW, relwidth=100)
+        self.image_controls_visible = not self.image_controls_visible
+
+
+
+
