@@ -6,9 +6,8 @@ from Structures import SmartImage, Group, Collection
 from UIManager import UIManager
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-# TODO Toggle dialogs
 # TODO close groups and reopen
-# TODO fix the way transparent images display
+# TODO fix the way transparent images display (potentially offer different bg options)
 # TODO Tag adding widget, with tag application within range or applied to entire group
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
@@ -28,7 +27,7 @@ class ImageViewerApp:
         # Configurations to make it fullscreen and the background grey
         root.attributes('-fullscreen', True)
         root.configure(bg='grey') 
-
+        
         # Store screen width and height
         self.screen_width = root.winfo_screenwidth()
         self.screen_height = root.winfo_screenheight()
@@ -91,6 +90,7 @@ class ImageViewerApp:
         # Label that holds the image
         self.image_label = tk.Label(self.root, padx = 0, pady = 0, bg = 'grey')
 
+        
     def layout_widgets(self):
         self.image_label.pack()
 
@@ -100,7 +100,6 @@ class ImageViewerApp:
         self.ui_manager.update_notebook(current_group_name)
 
     def initialize_keybinds(self):
-        self.root.bind('<Return>', testing_method1)
 
         self.root.bind('<Up>', self.zoom_in)
         self.root.bind('<Down>', self.zoom_out)
@@ -126,8 +125,11 @@ class ImageViewerApp:
         self.root.bind('<Control-Shift-S>', self.save_default_configuration)
         self.root.bind('<Control-S>', self.save_configuration)
         self.root.bind('<Control-L>', self.load_configuration)
-
         self.root.bind('<Control-Shift-R>', self.default_reset)
+
+        self.root.bind('<Control-d>', self.toggle_dialogs)
+
+        self.root.bind('<Control-f>', self.toggle_favorite)
 
         # --- UI binds ---
         self.root.bind('<Control-Key-1>', self.ui_manager.toggle_notebook)
@@ -323,6 +325,11 @@ class ImageViewerApp:
 
 # ----------------Configuaration Management Methods----------------
 
+    def toggle_favorite(self, event=None):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.toggle_favorite()
+        self.ui_manager.update_image_details(current_image)
+
     def toggle_dialogs(self, event=None):
         self.show_dialogs = not self.show_dialogs
 
@@ -424,7 +431,6 @@ class ImageViewerApp:
     
 # ----------------UI Methods----------------
 
-
     def on_tab_change(self, event):
         # Notebook/tab change method
         selected_tab = event.widget.tab(event.widget.select(), "text")
@@ -444,7 +450,9 @@ class ImageViewerApp:
                 self.root.focus_set()
                 break
     
-    # TESTING ONLY    
+
+
+# TESTING ONLY    --------------------------
     def create_test_collection(self):
         # Create some SmartImage instances with placeholder paths
         image1 = SmartImage(path=r"TestCollection\Group1\Cat03 copy 2.jpg", name="Image 1")
