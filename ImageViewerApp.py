@@ -475,17 +475,23 @@ class ImageViewerApp:
     
 # ----------------Tag Management ----------------
 
+# All of these methods have a self.ui_manager.update_image_details(current_image) update statement so that if the details menu is open when tags are added it will properly reflect it
+
     def add_tags_to_group(self, tags):
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         for image in current_group.images:
             image.add_tag(tags)
-
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        self.ui_manager.update_image_details(current_image)
+        
     def add_tags_to_range(self, tags, start, end):
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         current_index = self.current_image_index
 
         for i in range(max(0, current_index + start), min(len(current_group.images), current_index + end + 1)):
             current_group.images[i].add_tag(tags)
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        self.ui_manager.update_image_details(current_image)
 
     def add_tags_to_current(self, tags):
         
@@ -497,18 +503,25 @@ class ImageViewerApp:
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         for image in current_group.images:
             image.remove_tag(tags)
-        
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        self.ui_manager.update_image_details(current_image)
+
     def remove_tags_from_range(self, tags, start, end):
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         current_index = self.current_image_index
 
         for i in range(max(0, current_index + start), min(len(current_group.images), current_index + end + 1)):
             current_group.images[i].remove_tag(tags)
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        self.ui_manager.update_image_details(current_image)
+        
 
     def remove_tags_from_current(self, tags):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.remove_tag(tags)
         self.ui_manager.update_image_details(current_image)
+
+
 
 # TESTING ONLY    --------------------------
     def create_test_collection(self):
