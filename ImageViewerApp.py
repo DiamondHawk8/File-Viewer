@@ -96,7 +96,10 @@ class ImageViewerApp:
 
     # to handle updates from UIManager if needed
     def update_widgets(self):
-        pass
+        current_group_name = self.collections[self.current_collection_index].groups[self.current_group_index].name
+        self.ui_manager.update_notebook(current_group_name)
+
+
 
 
     def initialize_keybinds(self):
@@ -129,8 +132,12 @@ class ImageViewerApp:
 
         self.root.bind('<Control-Shift-R>', self.default_reset)
 
-        # UI binds
+        # --- UI binds ---
         self.root.bind('<Control-t>', self.toggle_ui_elements)
+        # Notebook/tab binding
+        self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
+        
+
         #TODO Toggle dialogs
 
 
@@ -203,6 +210,7 @@ class ImageViewerApp:
             self.current_image_index = 0
 
         # Display image from next group
+
         self.display_current_image()
             
     def previous_group(self, event = None):
@@ -412,8 +420,25 @@ class ImageViewerApp:
     def toggle_ui_elements(self, event=None):
         self.ui_manager.toggle_details()
 
+    def on_tab_change(self, event):
+        # Notebook/tab change method
+        selected_tab = event.widget.tab(event.widget.select(), "text")
 
+        # Access the current collection
+        current_collection = self.collections[self.current_collection_index]
+        # Access the current group
+        current_group = current_collection.groups[self.current_group_index]
 
+        # Store the current index of the group being swapped from
+        self.stored_indices.update({current_group.name : self.current_image_index})
+
+        for i, group in enumerate(self.collections[self.current_collection_index].groups):
+            if group.name == selected_tab:
+                self.current_group_index = i
+                self.display_current_image()
+                break
+
+    
     # TESTING ONLY    
     def create_test_collection(self):
         # Create some SmartImage instances with placeholder paths

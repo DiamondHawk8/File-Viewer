@@ -23,12 +23,17 @@ class UIManager:
         for group in groups:
             tab = tk.Frame(self.notebook)
             self.notebook.add(tab, text=group.name)
-            print(f"Added {group.name}")
+            # print(f"Added {group.name}")
+
+        # Bind arrow keys to prevent tab traversal on notebook so that image traversal keybinds still work
+        self.notebook.bind("<Left>", self.no_op)
+        self.notebook.bind("<Right>", self.no_op)
 
     def update_notebook(self, current_group_name):
         for i, tab_id in enumerate(self.notebook.tabs()):
             if self.notebook.tab(tab_id, "text") == current_group_name:
                 self.notebook.select(i)
+                break
             
     def initialize_detail_frames(self):
         self.image_details = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
@@ -128,10 +133,16 @@ class UIManager:
         # Call the update callback to notify ImageViewerApp
         self.update_callback()
 
+    def no_op(self, event):
+            """No operation event handler to disable key traversal."""
+            return "break"
+
+    # TODO make seperate toggles for each
     def toggle_details(self):
         if self.details_visible:
             self.image_details.place_forget()
             self.image_details_advanced.place_forget()
+            self.notebook.place_forget()
         else:
             self.image_details.place(anchor=tk.NE, relx=0.95, rely=0.05)
             self.image_details_advanced.place(anchor=tk.NW, relx=0, rely=0.05)
