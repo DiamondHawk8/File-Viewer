@@ -6,6 +6,9 @@ class UIManager:
     def __init__(self, root, update_callback):
         self.root = root
 
+        self.screen_width = root.winfo_screenwidth()
+        self.screen_height = root.winfo_screenheight()
+
         # Attribute for advanced updates
         self.update_callback = update_callback
 
@@ -20,7 +23,6 @@ class UIManager:
 
     def create_notebook(self, groups):
         # Add all groups to the notebook
-        print("Method called")
         for group in groups:
             tab = tk.Frame(self.notebook)
             self.notebook.add(tab, text=group.name)
@@ -35,7 +37,8 @@ class UIManager:
             if self.notebook.tab(tab_id, "text") == current_group_name:
                 self.notebook.select(i)
                 break
-            
+
+
     def initialize_detail_frames(self):
         self.image_details = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
         self.image_details_advanced = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
@@ -114,7 +117,6 @@ class UIManager:
         self.label_path.grid(row=6, column=0, sticky=tk.W)
         self.label_path_value.grid(row=6, column=1, sticky=tk.W)
 
-        
     def update_image_details(self, image):
         # Update the basic details
         self.name_var.set(image.name)
@@ -147,6 +149,6 @@ class UIManager:
         else:
             self.image_details.place(anchor=tk.NE, relx=0.95, rely=0.05)
             self.image_details_advanced.place(anchor=tk.NW, relx=0, rely=0.05)
-            self.notebook.place(relx=0.5, rely=0.5, anchor=tk.NW)
+            self.notebook.place(relx=0.0, rely=0.0, anchor=tk.NW, relwidth=100)
             self.notebook.lift()
         self.details_visible = not self.details_visible
