@@ -8,8 +8,9 @@ from UIManager import UIManager
 
 # TODO Toggle dialogs
 # TODO close groups and reopen
-# TODO gif structure
+# TODO fix the way transparent images display
 # TODO Tag adding widget, with tag application within range or applied to entire group
+# TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
 
