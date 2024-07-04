@@ -6,7 +6,12 @@ from Structures import SmartImage, Group, Collection
 from UIManager import UIManager
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-
+# TODO Toggle dialogs
+# TODO close groups and reopen
+# TODO gif structure
+# TODO Tag adding widget, with tag application within range or applied to entire group
+# TODO revise group structure to be able to take ina  list of groups that it should open
+# TODO Preloading if program is slow
 
 class ImageViewerApp:
     def __init__(self, root):
@@ -46,12 +51,12 @@ class ImageViewerApp:
         self.initialize_keybinds()
 
         self.load_collections("ZTakeoutTest\Takeout\Drive")
-
+        self.trim_groups()
         # Create notebook with groups from current collection
         if self.collections:
             self.ui_manager.create_notebook(self.collections[self.current_collection_index].groups) 
 
-
+        # print_collection_details(self.collections[0])
 
     def load_collections(self, folder_path=None, *collections):
         if folder_path:
@@ -135,8 +140,11 @@ class ImageViewerApp:
      
         # Notebook/tab binding
         self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
+
+        # Testing
+        self.root.bind('<Control-Right>', self.force_next_image)
         
-        #TODO Toggle dialogs
+       
         
 
 
@@ -157,7 +165,7 @@ class ImageViewerApp:
             self.ui_manager.update_image_details(smart_image)
 
     def next_image(self, event = None):
-
+        
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
 
@@ -169,6 +177,7 @@ class ImageViewerApp:
             self.current_image_index = 0
         
         # Display image
+        print(f"Next image called. INDEX: {self.current_image_index}")
         self.display_current_image()
 
     def previous_image(self, event = None):
@@ -208,8 +217,11 @@ class ImageViewerApp:
         else:
             self.current_image_index = 0
 
-        # Display image from next group
+        # Ensure main window is focused
+        self.root.focus_set()
 
+        # Display image from next group
+        
         self.display_current_image()
             
     def previous_group(self, event = None):
@@ -233,6 +245,9 @@ class ImageViewerApp:
             self.current_image_index = self.stored_indices[current_collection.groups[self.current_group_index].name]
         else:
             self.current_image_index = 0
+
+        # Ensure main window is focused
+        self.root.focus_set()
 
         # Display image from next group
         self.display_current_image()
@@ -433,6 +448,7 @@ class ImageViewerApp:
             if group.name == selected_tab:
                 self.current_group_index = i
                 self.display_current_image()
+                self.root.focus_set()
                 break
 
     
@@ -465,23 +481,20 @@ class ImageViewerApp:
             self.stored_indices = {}
             self.display_current_image()
 
+    def force_next_image(self):
 
-#TODO consider adding an update method to refresh all of the variables and placed images/widgets
-#TODO Preloading if program is slow
+        self.current_image_index += 1
 
-def testing_method1(event):
-    smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
-    
+        self.display_current_image
 
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = ImageViewerApp(root)
-    root.mainloop()
+    def trim_groups(self):
+        # Method for deleting empty groups
+        for collection in self.collections:
+            for group in collection.groups:
+                if group.images == []:
+                    collection.groups.remove(group)
 
 
-"""
 def print_collection_details(collection):
     for group in collection.groups:
         print(f"Group: {group.name}, Depth: {group.depth}, Images: {len(group.images)}")
@@ -502,4 +515,18 @@ def print_child_groups(children, level=1):
 
 
 
-"""
+
+def testing_method1(event):
+    smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
+    
+
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ImageViewerApp(root)
+    root.mainloop()
+
+
+
+

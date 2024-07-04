@@ -133,15 +133,17 @@ class Group:
         for item in os.listdir(folder_path):
             # Joins the master path with the name of the current item, combining single path, which represents the full path to the item within the directory.
             item_path = os.path.join(folder_path, item)
-
+            # print(f"Processing item: {item_path}")
             # If the item is a folder, create a child group and recurse into it
             if os.path.isdir(item_path):
+                # print(f"Found directory: {item_path}")
                 child_group = Group(item_path, item, parent=self, depth=self.depth + 1)
                 self.add_child_group(child_group)
                 child_group.load_images(item_path)
 
             # If the item is an image, add it to the appropriate list
             elif item.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                # print(f"Found image: {item_path}")
                 self.add_image(SmartImage(item_path, item, group=self.name))
 
     def __repr__(self):
