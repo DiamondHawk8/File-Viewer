@@ -38,8 +38,8 @@ class UIManager:
             # print(f"Added {group.name}")
 
         # Bind arrow keys to prevent tab traversal on notebook so that image traversal keybinds still work
-        self.notebook.bind("<Left>", self.no_op)
-        self.notebook.bind("<Right>", self.no_op)
+        self.notebook.bind("<Left>", self.lock_keybind)
+        self.notebook.bind("<Right>", self.lock_keybind)
 
     def update_notebook(self, current_group_name):
         for i, tab_id in enumerate(self.notebook.tabs()):
@@ -138,7 +138,6 @@ class UIManager:
         self.load_button.pack(side=tk.LEFT)
         self.default_reset_button.pack(side=tk.LEFT)
 
-
     def update_image_details(self, image):
         # Update the basic details
         self.name_var.set(image.name)
@@ -158,9 +157,8 @@ class UIManager:
         # Call the update callback to notify ImageViewerApp
         self.update_callback()
 
-    def no_op(self, event):
-            """No operation event handler to disable key traversal."""
-            return "break"
+    def lock_keybind(self, event):
+            return
 
 # ----------------Toggle Methods----------------
 
