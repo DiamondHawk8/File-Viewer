@@ -13,6 +13,8 @@ from UIManager import UIManager
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
 
+        
+
 class ImageViewerApp:
     def __init__(self, root):
         
@@ -97,8 +99,23 @@ class ImageViewerApp:
     def layout_widgets(self):
         self.image_label.pack()
 
-    def update_widgets(self):
-        # to handle updates from UIManager if needed
+    def update_widgets(self, mode=None, tags=None, start=None, end=None):
+        print(f"AT UPDATE, MODE: {mode}")
+        if mode == "add_group":
+            self.add_tags_to_group(tags)
+        elif mode == "add_range":
+            self.add_tags_to_range(tags, start, end)
+        elif mode == "add_current":
+            print("AAA")
+            self.add_tags_to_current(tags)
+        elif mode == "remove_group":
+            self.remove_tags_from_group(tags)
+        elif mode == "remove_range":
+            self.remove_tags_from_range(tags, start, end)
+        elif mode == "remove_current":
+            self.remove_tags_from_current(tags)
+        
+        # Kinda lazy, but im just going to leave this here, its to make the notebook reflect what group you're in
         current_group_name = self.collections[self.current_collection_index].groups[self.current_group_index].name
         self.ui_manager.update_notebook(current_group_name)
 
@@ -146,6 +163,7 @@ class ImageViewerApp:
 
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
+        self.root.bind('<Control-p>', self.print_tags)
 
         # Locked
         self.root.bind('<Control-a>', self.lock_keybind)
@@ -458,7 +476,43 @@ class ImageViewerApp:
                 self.root.focus_set()
                 break
     
+# ----------------Tag Management ----------------
 
+    def add_tags_to_group(self, tags):
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        for image in current_group.images:
+            image.add_tag(tags)
+
+    def add_tags_to_range(self, tags, start, end):
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        current_index = self.current_image_index
+
+        for i in range(max(0, current_index + start), min(len(current_group.images), current_index + end + 1)):
+            current_group.images[i].add_tag(tags)
+
+    def add_tags_to_current(self, tags):
+        
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        print(f"TESTING SECOND, adding tags to {current_image}")
+        current_image.add_tag(tags)
+        self.ui_manager.update_image_details(current_image)
+
+    def remove_tags_from_group(self, tags):
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        for image in current_group.images:
+            image.remove_tag(tags)
+
+    def remove_tags_from_range(self, tags, start, end):
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        current_index = self.current_image_index
+
+        for i in range(max(0, current_index + start), min(len(current_group.images), current_index + end + 1)):
+            current_group.images[i].remove_tag(tags)
+
+    def remove_tags_from_current(self, tags):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.remove_tag(tags)
+        self.ui_manager.update_image_details(current_image)
 
 # TESTING ONLY    --------------------------
     def create_test_collection(self):
@@ -495,6 +549,9 @@ class ImageViewerApp:
 
         self.display_current_image
 
+    def print_tags(self, event=None):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        print(f"Tags for image {current_image.name}: {current_image.tags}")
     
 def print_collection_details(collection):
     for group in collection.groups:

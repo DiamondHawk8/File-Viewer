@@ -128,6 +128,7 @@ class UIManager:
 
         # Button to remove tags
         self.remove_tag_button = tk.Button(self.tag, text="Remove Tags", command=self.remove_tags)
+
     def layout_widgets(self):
 
         # Pack the basic details labels
@@ -233,19 +234,20 @@ class UIManager:
     def add_tags(self):
             tags = self.tag_entry.get()
             if self.apply_to_group.get():
-                self.update_callback("group", tags)
+                self.update_callback("add_group", tags)
             else:
                 range_text = self.range_entry.get()
                 try:
                     if range_text:
                         start, end = map(int, range_text.split(','))
-                        self.update_callback("range", tags, start, end)
+                        self.update_callback("add_range", tags, start, end)
                     else:
-                        self.update_callback("current", tags)
+                        print("TESTING, ading to current")
+                        self.update_callback("add_current", tags)
                 except ValueError:
                     print("Invalid range format. Use '-x,y' format.")
 
-    def remove_tags(self):
+    def remove_tags(self):  
         tags = self.tag_entry.get()
         if self.apply_to_group.get():
             self.update_callback("remove_group", tags)
