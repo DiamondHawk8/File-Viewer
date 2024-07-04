@@ -21,9 +21,6 @@ class ImageViewerApp:
         # Attribute to represent a list of collections
         self.collections = []
         
-        # Boolean value for whether or not warning/confirmation dialogs should show
-        self.show_dialogs = True
-
         # Configurations to make it fullscreen and the background grey
         root.attributes('-fullscreen', True)
         root.configure(bg='grey') 
@@ -55,6 +52,12 @@ class ImageViewerApp:
         # Create notebook with groups from current collection
         if self.collections:
             self.ui_manager.create_notebook(self.collections[self.current_collection_index].groups) 
+
+        # Boolean value for whether or not warning/confirmation dialogs should show
+        self.show_dialogs = True
+
+        # Boolean value for whether or not images should wrap arond when the index goes out of range
+        self.image_wrap = False
 
         # print_collection_details(self.collections[0])
 
@@ -120,11 +123,11 @@ class ImageViewerApp:
         # Lowercase binds
         self.root.bind('<Control-Shift-s>', self.save_default_configuration)
         self.root.bind('<Control-s>', self.save_configuration)
-        self.root.bind('<Control-l>', self.load_configuration)
+        self.root.bind('<Control-d>', self.load_configuration)
         # Capital binds
         self.root.bind('<Control-Shift-S>', self.save_default_configuration)
         self.root.bind('<Control-S>', self.save_configuration)
-        self.root.bind('<Control-L>', self.load_configuration)
+        self.root.bind('<Control-D>', self.load_configuration)
         self.root.bind('<Control-Shift-R>', self.default_reset)
 
         self.root.bind('<Control-d>', self.toggle_dialogs)
