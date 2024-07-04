@@ -123,11 +123,11 @@ class ImageViewerApp:
         # Lowercase binds
         self.root.bind('<Control-Shift-s>', self.save_default_configuration)
         self.root.bind('<Control-s>', self.save_configuration)
-        self.root.bind('<Control-d>', self.load_configuration)
+        self.root.bind('<Control-l>', self.load_configuration)
         # Capital binds
         self.root.bind('<Control-Shift-S>', self.save_default_configuration)
         self.root.bind('<Control-S>', self.save_configuration)
-        self.root.bind('<Control-D>', self.load_configuration)
+        self.root.bind('<Control-L>', self.load_configuration)
         self.root.bind('<Control-Shift-R>', self.default_reset)
 
         self.root.bind('<Control-d>', self.toggle_dialogs)
@@ -145,6 +145,9 @@ class ImageViewerApp:
 
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
+
+        # Locked
+        self.root.bind('<Control-a>', self.lock_keybind)
         
     def trim_groups(self):
         # Method for deleting empty groups
@@ -153,6 +156,8 @@ class ImageViewerApp:
                 if group.images == []:
                     collection.groups.remove(group)
 
+    def lock_keybind(self, event = None):
+        return
 # ----------------Display Methods----------------
 
     def display_current_image(self, event = None):
@@ -182,7 +187,6 @@ class ImageViewerApp:
             self.current_image_index = 0
         
         # Display image
-        print(f"Next image called. INDEX: {self.current_image_index}")
         self.display_current_image()
 
     def previous_image(self, event = None):
