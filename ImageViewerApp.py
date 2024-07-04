@@ -85,7 +85,6 @@ class ImageViewerApp:
             self.stored_indices = {}
             self.display_current_image()
 
-
     def create_widgets(self):
 
         # Label that holds the image
@@ -99,9 +98,6 @@ class ImageViewerApp:
         current_group_name = self.collections[self.current_collection_index].groups[self.current_group_index].name
         self.ui_manager.update_notebook(current_group_name)
 
-
-
-
     def initialize_keybinds(self):
         self.root.bind('<Return>', testing_method1)
 
@@ -112,7 +108,7 @@ class ImageViewerApp:
         self.root.bind('<Right>', self.next_image)
 
         self.root.bind('<Control-Shift-Tab>', self.previous_group)
-        self.root.bind('<Shift-Tab>', self.next_group)
+        self.root.bind('<Control-Tab>', self.next_group)
 
         self.root.bind('<a>', self.pan_left)
         self.root.bind('<d>', self.pan_right)
@@ -144,9 +140,12 @@ class ImageViewerApp:
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
         
-       
-        
-
+    def trim_groups(self):
+        # Method for deleting empty groups
+        for collection in self.collections:
+            for group in collection.groups[:]:  
+                if group.images == []:
+                    collection.groups.remove(group)
 
 # ----------------Display Methods----------------
 
@@ -217,11 +216,7 @@ class ImageViewerApp:
         else:
             self.current_image_index = 0
 
-        # Ensure main window is focused
-        self.root.focus_set()
-
         # Display image from next group
-        
         self.display_current_image()
             
     def previous_group(self, event = None):
@@ -245,9 +240,6 @@ class ImageViewerApp:
             self.current_image_index = self.stored_indices[current_collection.groups[self.current_group_index].name]
         else:
             self.current_image_index = 0
-
-        # Ensure main window is focused
-        self.root.focus_set()
 
         # Display image from next group
         self.display_current_image()
@@ -450,7 +442,6 @@ class ImageViewerApp:
                 self.display_current_image()
                 self.root.focus_set()
                 break
-
     
     # TESTING ONLY    
     def create_test_collection(self):
@@ -487,15 +478,7 @@ class ImageViewerApp:
 
         self.display_current_image
 
-    def trim_groups(self):
-        # Method for deleting empty groups
-        for collection in self.collections:
-            for group in collection.groups[:]:  
-                if group.images == []:
-                    collection.groups.remove(group)
-
-
-
+    
 def print_collection_details(collection):
     for group in collection.groups:
         print(f"Group: {group.name}, Depth: {group.depth}, Images: {len(group.images)}")

@@ -12,8 +12,8 @@ class UIManager:
         # Attribute for advanced updates
         self.update_callback = update_callback
 
-        # Create notebook for groups (tab structure)
-        self.notebook = ttk.Notebook(self.root)
+        # Create notebook for groups (tab structure) and prevent traversal
+        self.notebook = ttk.Notebook(self.root, takefocus=0)
 
         # Create frames for image details
         self.initialize_detail_frames()
