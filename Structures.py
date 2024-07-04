@@ -33,13 +33,19 @@ class SmartImage:
         # A preconfig list that has the first 2 values represent panx and y, then the 3rd represent a zoom
         self.preconfig = []
 
-    def add_tag(self, tag):
-        if tag not in self.tags:
-            self.tags.append(tag)
+    def add_tag(self, tags):
+        for tag in tags.split(','):
+            tag = tag.strip()
+            tag = tag.lower()
+            if tag and tag not in self.tags:
+                self.tags.append(tag)
 
-    def remove_tag(self, tag):
-        if tag in self.tags:
-            self.tags.remove(tag)
+    def remove_tag(self, tags):
+        for tag in tags.split(','):
+            tag = tag.strip()
+            tag = tag.lower()
+            if tag in self.tags:
+                self.tags.remove(tag)
 
     # Debug Only
     def print_tags(self):
