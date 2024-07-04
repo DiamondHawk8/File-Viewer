@@ -18,8 +18,11 @@ class UIManager:
         # Create frames for image details
         self.initialize_detail_frames()
 
-        # Create frame for inmage control menu
+        # Create frame for image control menu
         self.initialize_image_controls_frame()
+
+        # Create frame for tag adding/removing menu
+        self.initialize_tag_frame()
 
         self.layout_widgets()
 
@@ -28,6 +31,7 @@ class UIManager:
         self.details_adv_visible = False
         self.notebook_visible = False
         self.image_controls_visible = False
+        self.tag_visible = False
 
 
     def create_notebook(self, groups):
@@ -103,6 +107,27 @@ class UIManager:
         self.load_button = tk.Button(self.controls, text="Load", command=lambda: self.root.event_generate('<Control-l>'))
         self.default_reset_button = tk.Button(self.controls, text="Default Reset", command=lambda: self.root.event_generate('<Control-Shift-R>'))
 
+    def initialize_tag_frame(self):
+
+        self.tag = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
+
+        # Entry for tags
+        self.tag_entry = tk.Entry(self.tag, width=50)
+        
+        # Checkbutton to apply tags to the entire group
+        self.apply_to_group = tk.BooleanVar()
+        tk.Checkbutton(self.tag, text="Apply to entire group", variable=self.apply_to_group).pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Entry for range
+        self.range_label = tk.Label(self.tag, text="Range (-x, y):")
+        
+        self.range_entry = tk.Entry(self.tag, width=10)
+        
+        # Button to add tags
+        self.add_tag_button = tk.Button(self.tag, text="Add Tags", command=self.add_tags)
+
+        # Button to remove tags
+        self.remove_tag_button = tk.Button(self.tag, text="Remove Tags", command=self.remove_tags)
     def layout_widgets(self):
 
         # Pack the basic details labels
@@ -137,6 +162,13 @@ class UIManager:
         self.save_button.pack(side=tk.LEFT)
         self.load_button.pack(side=tk.LEFT)
         self.default_reset_button.pack(side=tk.LEFT)
+
+        # Tag menu
+        self.tag_entry.pack(side=tk.LEFT, padx=5, pady=5)
+        self.range_label.pack(side=tk.LEFT, padx=5, pady=5)
+        self.range_entry.pack(side=tk.LEFT, padx=5, pady=5)
+        self.add_tag_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.remove_tag_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     def update_image_details(self, image):
         # Update the basic details
@@ -190,6 +222,40 @@ class UIManager:
             self.controls.place(relx=0.0, rely=1.0, anchor=tk.SW, relwidth=100)
         self.image_controls_visible = not self.image_controls_visible
 
+    def toggle_tag(self, event = None):
+        if self.tag_visible:
+            self.tag.place_forget()
+        else:
+            self.tag.place(relx = 0.5, rely = 1, anchor = tk.S)
 
 
+# Other
+    def add_tags(self):
+            tags = self.tag_entry.get()
+            if self.apply_to_group.get():
+                self.update_callback("group", tags)
+            else:
+                range_text = self.range_entry.get()
+                try:
+                    if range_text:
+                        start, end = map(int, range_text.split(','))
+                        self.update_callback("range", tags, start, end)
+                    else:
+                        self.update_callback("current", tags)
+                except ValueError:
+                    print("Invalid range format. Use '-x,y' format.")
 
+    def remove_tags(self):
+        tags = self.tag_entry.get()
+        if self.apply_to_group.get():
+            self.update_callback("remove_group", tags)
+        else:
+            range_text = self.range_entry.get()
+            try:
+                if range_text:
+                    start, end = map(int, range_text.split(','))
+                    self.update_callback("remove_range", tags, start, end)
+                else:
+                    self.update_callback("remove_current", tags)
+            except ValueError:
+                print("Invalid range format. Use '-x,y' format.")
