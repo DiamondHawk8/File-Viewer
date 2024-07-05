@@ -8,7 +8,7 @@ import itertools
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
    
-# TODO Weight and image position and transformation menu
+# TODO Group menu
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
@@ -98,14 +98,13 @@ class ImageViewerApp:
             self.display_current_image()
 
     def create_widgets(self):
-
         # Label that holds the image
         self.image_label = tk.Label(self.root, padx = 0, pady = 0, bg = 'grey')
         
     def layout_widgets(self):
         self.image_label.pack()
 
-    def update_widgets(self, mode=None, tags=None, start=None, end=None, ):
+    def update_widgets(self, mode=None, tags=None, start=None, end=None, zoom_level=None, panx=None, pany=None, default=None, preconfig=None):
         if mode == "add_group":
             self.add_tags_to_group(tags)
         elif mode == "add_range":
@@ -118,8 +117,14 @@ class ImageViewerApp:
             self.remove_tags_from_range(tags, start, end)
         elif mode == "remove_current":
             self.remove_tags_from_current(tags)
+        elif mode == "apply_group":
+            self.apply_zoom_pan_to_group(zoom_level, panx, pany, default, preconfig)
+        elif mode == "apply_range":
+           self.apply_zoom_pan_to_range(zoom_level, panx, pany, start, end, default, preconfig)
+        elif mode == "apply_current":
+            self.apply_zoom_pan_to_current(zoom_level, panx, pany, default, preconfig)
         
-        # Kinda lazy, but im just going to leave this here, to always run when this method is called, its to make the notebook reflect what group you're in
+        # Kinda lazy, but I'm just going to leave this here, to always run when this method is called, it's to make the notebook reflect what group you're in
         current_group_name = self.collections[self.current_collection_index].groups[self.current_group_index].name
         self.ui_manager.update_notebook(current_group_name)
 
@@ -166,7 +171,7 @@ class ImageViewerApp:
         self.root.bind('<Control-Key-4>', self.ui_manager.toggle_adv_details)
         self.root.bind('<Control-Key-5>', self.ui_manager.toggle_controls)
         self.root.bind('<Control-Key-6>', self.toggle_keybinds_and_tag_menu)
-        
+        self.root.bind('<Control-Key-7>', self.toggle_keybinds_and_zoom_pan_menu)
    
      
         # Notebook/tab binding
@@ -182,6 +187,10 @@ class ImageViewerApp:
     def toggle_keybinds_and_tag_menu(self, event=None):
         self.toggle_keybinds()
         self.ui_manager.toggle_tag()
+
+    def toggle_keybinds_and_zoom_pan_menu(self, event=None):
+        self.toggle_keybinds()
+        self.ui_manager.toggle_zoom_pan()
 
     def toggle_keybinds(self):
         if self.typing:
@@ -457,6 +466,68 @@ class ImageViewerApp:
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.pany += 5
         self.display_current_image()
+
+    def apply_zoom_pan_to_group(self, zoom_level, panx, pany, default, preconfig):
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        for image in current_group.images:
+            image.zoom_level = zoom_level
+            image.panx = panx
+            image.pany = pany
+            if default:
+                image.default_zoom_level = zoom_level
+                image.default_panx = panx
+                image.default_pany = pany
+            if preconfig:
+                if not hasattr(image, 'preconfig') or len(image.preconfig) < 3:
+                    image.preconfig = [0, 0, 1.0]
+                image.preconfig[0] = panx
+                image.preconfig[1] = pany
+                image.preconfig[2] = zoom_level
+        self.display_current_image()
+
+    def apply_zoom_pan_to_current(self, zoom_level, panx, pany, default, preconfig):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        current_image.zoom_level = zoom_level
+        current_image.panx = panx
+        current_image.pany = pany
+        if default:
+            current_image.default_zoom_level = zoom_level
+            current_image.default_panx = panx
+            current_image.default_pany = pany
+        if preconfig:
+            if not hasattr(current_image, 'preconfig') or len(current_image.preconfig) < 3:
+                current_image.preconfig = [0, 0, 1.0]
+            current_image.preconfig[0] = panx
+            current_image.preconfig[1] = pany
+            current_image.preconfig[2] = zoom_level
+        self.display_current_image()
+    
+    def apply_zoom_pan_to_range(self, zoom_level, panx, pany, start, end, default, preconfig):
+        print("appying to range")
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        current_index = self.current_image_index
+
+        for i in range(max(0, current_index + start), min(len(current_group.images), current_index + end + 1)):
+            image = current_group.images[i]
+            image.zoom_level = zoom_level
+            image.panx = panx
+            image.pany = pany
+            if default:
+                image.default_zoom_level = zoom_level
+                image.default_panx = panx
+                image.default_pany = pany
+            if preconfig:
+                if not hasattr(image, 'preconfig') or len(image.preconfig) < 3:
+                    image.preconfig = [0, 0, 1.0]
+                image.preconfig[0] = panx
+                image.preconfig[1] = pany
+                image.preconfig[2] = zoom_level
+        self.display_current_image()
+
+
+
+
+
 
 # ----------------Configuaration Management Methods----------------
 

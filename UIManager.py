@@ -40,6 +40,7 @@ class UIManager:
         self.image_controls_visible = False
         self.tag_visible = False
         self.name_visible = False
+        self.zoom_pan_visible = False
 
     def create_notebook(self, groups):
         # Add all groups to the notebook
@@ -147,9 +148,88 @@ class UIManager:
         # Calling Update Image details will also update this method
         self.filename_label = tk.Label(self.root, text=self.name_var, font=("Helvetica", 12), bg="gainsboro")
 
-
     def initialize_zoom_pan_frame(self):
-        pass
+        self.zoom_pan_frame = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
+
+        # Use new StringVars for zoom and pan values
+        self.current_zoom_var = tk.StringVar()
+        self.current_panx_var = tk.StringVar()
+        self.current_pany_var = tk.StringVar()
+        self.default_zoom_var = tk.StringVar()
+        self.default_panx_var = tk.StringVar()
+        self.default_pany_var = tk.StringVar()
+        self.preconfig_zoom_var = tk.StringVar()
+        self.preconfig_panx_var = tk.StringVar()
+        self.preconfig_pany_var = tk.StringVar()
+        self.apply_to_range = tk.BooleanVar()
+
+        # Labels and entries for current values
+        self.current_zoom_label = tk.Label(self.zoom_pan_frame, text="Current Zoom:", bg="gainsboro")
+        self.current_zoom_value = tk.Label(self.zoom_pan_frame, textvariable=self.current_zoom_var, bg="gainsboro")
+        self.current_panx_label = tk.Label(self.zoom_pan_frame, text="Current Pan X:", bg="gainsboro")
+        self.current_panx_value = tk.Label(self.zoom_pan_frame, textvariable=self.current_panx_var, bg="gainsboro")
+        self.current_pany_label = tk.Label(self.zoom_pan_frame, text="Current Pan Y:", bg="gainsboro")
+        self.current_pany_value = tk.Label(self.zoom_pan_frame, textvariable=self.current_pany_var, bg="gainsboro")
+
+        # Labels and entries for zoom/pan values
+        self.zoom_label = tk.Label(self.zoom_pan_frame, text="Zoom Level:", bg="gainsboro")
+        self.zoom_entry = tk.Entry(self.zoom_pan_frame)
+
+        self.panx_label = tk.Label(self.zoom_pan_frame, text="Pan X:", bg="gainsboro")
+        self.panx_entry = tk.Entry(self.zoom_pan_frame)
+
+        self.pany_label = tk.Label(self.zoom_pan_frame, text="Pan Y:", bg="gainsboro")
+        self.pany_entry = tk.Entry(self.zoom_pan_frame)
+
+        self.default_label = tk.Label(self.zoom_pan_frame, text="Default:", bg="gainsboro")
+        self.default_var = tk.BooleanVar()
+        self.default_check = tk.Checkbutton(self.zoom_pan_frame, variable=self.default_var)
+
+        self.preconfig_label = tk.Label(self.zoom_pan_frame, text="Preconfig:", bg="gainsboro")
+        self.preconfig_var = tk.BooleanVar()
+        self.preconfig_check = tk.Checkbutton(self.zoom_pan_frame, variable=self.preconfig_var)
+
+        self.use_current_button = tk.Button(self.zoom_pan_frame, text="Use Current", command=self.use_current_values)
+        self.apply_button = tk.Button(self.zoom_pan_frame, text="Apply", command=self.apply_zoom_pan)
+
+        # New range label and entry for zoom/pan frame
+        self.zoom_pan_range_label = tk.Label(self.zoom_pan_frame, text="Range (-x, y):", bg="gainsboro")
+        self.zoom_pan_range_entry = tk.Entry(self.zoom_pan_frame)
+
+        # Checkbutton to apply zoom/pan to the entire group
+        self.apply_zoom_pan_to_group = tk.BooleanVar()
+        self.apply_zoom_pan_to_group_check = tk.Checkbutton(self.zoom_pan_frame, text="Apply to entire group", variable=self.apply_zoom_pan_to_group)
+
+    def layout_widgets(self):
+        # Layout for zoom/pan frame using grid
+        self.current_zoom_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        self.current_zoom_value.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
+        self.current_panx_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        self.current_panx_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        self.current_pany_label.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        self.current_pany_value.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+
+        self.zoom_label.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
+        self.zoom_entry.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
+        self.panx_label.grid(row=4, column=0, sticky=tk.W, padx=5, pady=5)
+        self.panx_entry.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
+        self.pany_label.grid(row=5, column=0, sticky=tk.W, padx=5, pady=5)
+        self.pany_entry.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+
+        self.default_label.grid(row=6, column=0, sticky=tk.W, padx=5, pady=5)
+        self.default_check.grid(row=6, column=1, sticky=tk.W, padx=5, pady=5)
+        self.preconfig_label.grid(row=7, column=0, sticky=tk.W, padx=5, pady=5)
+        self.preconfig_check.grid(row=7, column=1, sticky=tk.W, padx=5, pady=5)
+
+        self.use_current_button.grid(row=8, column=0, padx=5, pady=5)
+        self.apply_button.grid(row=8, column=1, padx=5, pady=5)
+
+        # Layout for new range label and entry
+        self.zoom_pan_range_label.grid(row=9, column=0, sticky=tk.W, padx=5, pady=5)
+        self.zoom_pan_range_entry.grid(row=9, column=1, sticky=tk.W, padx=5, pady=5)
+        self.apply_zoom_pan_to_group_check.grid(row=10, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
+
+
 
     def layout_widgets(self):
 
@@ -193,6 +273,37 @@ class UIManager:
         self.add_tag_button.pack(side=tk.LEFT, padx=5, pady=5)
         self.remove_tag_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+        # Zoom pan menu
+        self.current_zoom_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        self.current_zoom_value.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
+        self.current_panx_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        self.current_panx_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        self.current_pany_label.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        self.current_pany_value.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+
+        self.zoom_label.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
+        self.zoom_entry.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
+        self.panx_label.grid(row=4, column=0, sticky=tk.W, padx=5, pady=5)
+        self.panx_entry.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
+        self.pany_label.grid(row=5, column=0, sticky=tk.W, padx=5, pady=5)
+        self.pany_entry.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+
+        self.default_label.grid(row=6, column=0, sticky=tk.W, padx=5, pady=5)
+        self.default_check.grid(row=6, column=1, sticky=tk.W, padx=5, pady=5)
+        self.preconfig_label.grid(row=7, column=0, sticky=tk.W, padx=5, pady=5)
+        self.preconfig_check.grid(row=7, column=1, sticky=tk.W, padx=5, pady=5)
+
+        self.use_current_button.grid(row=8, column=0, padx=5, pady=5)
+        self.apply_button.grid(row=8, column=1, padx=5, pady=5)
+
+        # Layout for new range label and entry
+        self.zoom_pan_range_label.grid(row=9, column=0, sticky=tk.W, padx=5, pady=5)
+        self.zoom_pan_range_entry.grid(row=9, column=1, sticky=tk.W, padx=5, pady=5)
+        self.apply_zoom_pan_to_group_check.grid(row=10, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
+
+
+
+
     def update_image_details(self, image):
         # Update the basic details
         self.name_var.set(image.name)
@@ -212,8 +323,28 @@ class UIManager:
         self.index_var.set(str(image.index))
         self.path_var.set(str(image.path))
 
+        # Update default and preconfig values
+        self.default_zoom_var.set(str(image.default_zoom_level))
+        self.default_panx_var.set(str(image.default_panx))
+        self.default_pany_var.set(str(image.default_pany))
+
+        if image.preconfig:
+            self.preconfig_zoom_var.set(str(image.preconfig[2]))
+            self.preconfig_panx_var.set(str(image.preconfig[0]))
+            self.preconfig_pany_var.set(str(image.preconfig[1]))
+        else:
+            self.preconfig_zoom_var.set("")
+            self.preconfig_panx_var.set("")
+            self.preconfig_pany_var.set("")
+
+        # Update current values
+        self.current_zoom_var.set(str(image.zoom_level))
+        self.current_panx_var.set(str(image.panx))
+        self.current_pany_var.set(str(image.pany))
+
         # Call the update callback to notify ImageViewerApp
         self.update_callback()
+
 
     def lock_keybind(self, event):
             return
@@ -263,6 +394,13 @@ class UIManager:
            self.filename_label.place(anchor=tk.NE, relx=1, rely=0.00)
         self.name_visible = not self.name_visible
 
+    def toggle_zoom_pan(self, event = None):
+        if self.zoom_pan_visible:
+            self.zoom_pan_frame.place_forget()
+        else:
+            self.zoom_pan_frame.place(anchor=tk.NE, relx=0.95, rely=0.05)
+        self.zoom_pan_visible = not self.zoom_pan_visible
+        self.root.focus_set()
 # Other
     def add_tags(self):
             tags = self.tag_entry.get()
@@ -293,3 +431,45 @@ class UIManager:
                     self.update_callback("remove_current", tags)
             except ValueError:
                 print("Invalid range format. Use '-x,y' format.")
+
+    def use_current_values(self):
+        self.zoom_entry.delete(0, tk.END)
+        self.zoom_entry.insert(0, self.current_zoom_var.get())
+        self.panx_entry.delete(0, tk.END)
+        self.panx_entry.insert(0, self.current_panx_var.get())
+        self.pany_entry.delete(0, tk.END)
+        self.pany_entry.insert(0, self.current_pany_var.get())
+
+    def apply_zoom_pan(self):
+
+        zoom_level_entry = self.zoom_entry.get()
+        panx_entry = self.panx_entry.get()
+        pany_entry = self.pany_entry.get()
+
+        if zoom_level_entry != "":
+            zoom_level = float(zoom_level_entry)   
+        else:
+            zoom_level = 1
+        if panx_entry != "":
+            panx = int(panx_entry)
+        else:
+            panx = 0
+        if pany_entry != "":
+            pany = int(panx_entry)
+        else:
+            pany = 0
+        default = self.default_var.get()
+        preconfig = self.preconfig_var.get()
+
+        if self.apply_zoom_pan_to_group.get():
+            self.update_callback("apply_group", zoom_level=zoom_level, panx=panx, pany=pany, default=default, preconfig=preconfig)
+        elif (self.zoom_pan_range_entry != ""):
+            range_text = self.zoom_pan_range_entry.get()
+            try:
+                print(range_text.split(','))
+                start, end = map(int, range_text.split(','))
+                self.update_callback("apply_range", zoom_level=zoom_level, panx=panx, pany=pany, start=start, end=end, default=default, preconfig=preconfig)
+            except ValueError:
+                print("Invalid range format. Use '-x,y' format.")
+        else:
+            self.update_callback("apply_current", zoom_level=zoom_level, panx=panx, pany=pany, default=default, preconfig=preconfig)
