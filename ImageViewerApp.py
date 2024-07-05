@@ -376,7 +376,10 @@ class ImageViewerApp:
             # Store the current group
             self.closed_groups.append(current_group)
 
+            # Remove from collections list and notebook
             self.collections[self.current_collection_index].groups.remove(current_group)
+            self.ui_manager.remove_notebook_tab(self.current_group_index)
+
             # Decide whether to increment or decrement current group
             if self.current_group_index > 0:
                 self.current_group_index -= 1
@@ -392,7 +395,7 @@ class ImageViewerApp:
             self.update_widgets()
             self.display_current_image()
 
-
+    
 # ----------------Transformation Methods----------------
 
     def zoom_in(self, event=None):
@@ -660,9 +663,6 @@ def print_child_groups(children, level=1):
 
 
 
-
-def testing_method1(event):
-    smartImage = SmartImage(r"C:\Users\darks\Downloads\image0.jpg", r"a pic")
     
 
 
