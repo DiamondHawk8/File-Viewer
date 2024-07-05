@@ -1,3 +1,5 @@
+from PIL import Image, ImageTk, ImageSequence
+import itertools
 import os
 
 # Hierarchy: Collection > Group > SmartImage
@@ -194,3 +196,13 @@ class Collection:
 
 
 #TODO Gif class (inherits from smart image)
+
+class GifImage(SmartImage):
+    def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False):
+        super().__init__(path, name, group, zoom_level, panx, pany, series, index, offset, weight, tags, favorite)
+        self.frames = self.load_gif_frames(path)
+        self.current_frame = 0
+        self.animation = None
+        # Speed in ms
+        self.animation_speed = 100 
+        self.is_animated = True
