@@ -7,7 +7,8 @@ from UIManager import UIManager
 import itertools
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-
+# TODO name widget      
+# TODO Weight and image position and transformation menu
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
