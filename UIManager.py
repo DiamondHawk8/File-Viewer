@@ -30,6 +30,7 @@ class UIManager:
         # Create label for displaying filename
         self.initialize_name_frame()
 
+       # self.initialize_group_frame()
 
         self.layout_widgets()
 
@@ -41,6 +42,7 @@ class UIManager:
         self.tag_visible = False
         self.name_visible = False
         self.zoom_pan_visible = False
+        self.group_visible = False
 
     def create_notebook(self, groups):
         # Add all groups to the notebook
@@ -200,34 +202,8 @@ class UIManager:
         self.apply_zoom_pan_to_group = tk.BooleanVar()
         self.apply_zoom_pan_to_group_check = tk.Checkbutton(self.zoom_pan_frame, text="Apply to entire group", variable=self.apply_zoom_pan_to_group)
 
-    def layout_widgets(self):
-        # Layout for zoom/pan frame using grid
-        self.current_zoom_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
-        self.current_zoom_value.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
-        self.current_panx_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
-        self.current_panx_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
-        self.current_pany_label.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
-        self.current_pany_value.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+    
 
-        self.zoom_label.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
-        self.zoom_entry.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
-        self.panx_label.grid(row=4, column=0, sticky=tk.W, padx=5, pady=5)
-        self.panx_entry.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
-        self.pany_label.grid(row=5, column=0, sticky=tk.W, padx=5, pady=5)
-        self.pany_entry.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
-
-        self.default_label.grid(row=6, column=0, sticky=tk.W, padx=5, pady=5)
-        self.default_check.grid(row=6, column=1, sticky=tk.W, padx=5, pady=5)
-        self.preconfig_label.grid(row=7, column=0, sticky=tk.W, padx=5, pady=5)
-        self.preconfig_check.grid(row=7, column=1, sticky=tk.W, padx=5, pady=5)
-
-        self.use_current_button.grid(row=8, column=0, padx=5, pady=5)
-        self.apply_button.grid(row=8, column=1, padx=5, pady=5)
-
-        # Layout for new range label and entry
-        self.zoom_pan_range_label.grid(row=9, column=0, sticky=tk.W, padx=5, pady=5)
-        self.zoom_pan_range_entry.grid(row=9, column=1, sticky=tk.W, padx=5, pady=5)
-        self.apply_zoom_pan_to_group_check.grid(row=10, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
 
 
 
