@@ -6,8 +6,7 @@ from Structures import SmartImage, Group, Collection
 from UIManager import UIManager
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-# TODO close groups and reopen
-# TODO fix the way transparent images display (potentially offer different bg options)
+
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
@@ -345,7 +344,7 @@ class ImageViewerApp:
         image = image.resize((new_width, new_height), Image.LANCZOS)
 
         # Create a new blank image with the same size as the screen to apply pan
-        result_image = Image.new("RGB", (self.screen_width, self.screen_height), (128, 128, 128))
+        result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (128, 128, 128))
         
         # Calculate the position to paste the image onto the blank image
         paste_x = (self.screen_width - new_width) // 2 + panx
