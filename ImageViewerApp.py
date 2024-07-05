@@ -21,7 +21,10 @@ class ImageViewerApp:
 
         # Attribute to represent a list of collections
         self.collections = []
-        
+
+        # Attribute to keep track of groups that were closed
+        self.closed_groups = []
+
         # Configurations to make it fullscreen and the background grey
         root.attributes('-fullscreen', True)
         root.configure(bg='grey') 
@@ -63,7 +66,8 @@ class ImageViewerApp:
         # Bool for disabling typing key keybinds
         self.typing = True
 
-        # print_collection_details(self.collections[0])
+        # Copy of the initial collections for saving purposes
+        self.collections_copy = self.collections
 
     def load_collections(self, folder_path=None, *collections):
         if folder_path:
@@ -152,6 +156,7 @@ class ImageViewerApp:
 
         self.root.bind('<Control-m>', self.toggle_wrap)
 
+        self.root.bind('<Control-w>', self.close_group)
         # --- UI binds ---
         self.root.bind('<Control-Key-1>', self.ui_manager.toggle_notebook)
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_details)
@@ -208,6 +213,7 @@ class ImageViewerApp:
 
     def lock_keybind(self, event = None):
         return
+
 # ----------------Display Methods----------------
 
     def display_current_image(self, event = None):
@@ -354,6 +360,39 @@ class ImageViewerApp:
 
     def toggle_wrap(self, event = None):
         self.image_wrap = not self.image_wrap
+    
+    def close_group(self, event = None):
+        # removes the current tab if it is able to
+
+        current_collection = self.collections[self.current_collection_index]
+
+        if len(current_collection.groups) > 1:
+            
+            current_group = current_collection.groups[self.current_group_index]
+
+            # Store the current index of the group being swapped from
+            self.stored_indices.update({current_group.name : self.current_image_index})
+
+            # Store the current group
+            self.closed_groups.append(current_group)
+
+            self.collections[self.current_collection_index].groups.remove(current_group)
+            # Decide whether to increment or decrement current group
+            if self.current_group_index > 0:
+                self.current_group_index -= 1
+            else:
+                self.current_group_index +=1
+            
+                # Check to see if the new group has a stored index, and if so, set current index to such
+            if current_collection.groups[self.current_group_index].name in self.stored_indices:
+                self.current_image_index = self.stored_indices[current_collection.groups[self.current_group_index].name]
+            else:
+                self.current_image_index = 0
+
+            self.update_widgets()
+            self.display_current_image()
+
+
 # ----------------Transformation Methods----------------
 
     def zoom_in(self, event=None):
