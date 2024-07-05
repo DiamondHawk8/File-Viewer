@@ -6,6 +6,7 @@ from Structures import SmartImage, Group, Collection
 from UIManager import UIManager
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
+# TODO IMAGE WRAP
 # TODO close groups and reopen
 # TODO fix the way transparent images display (potentially offer different bg options)
 # TODO gif structure
@@ -60,6 +61,9 @@ class ImageViewerApp:
         # Boolean value for whether or not images should wrap arond when the index goes out of range
         self.image_wrap = False
 
+        # Bool for disabling typing key keybinds
+        self.typing = True
+
         # print_collection_details(self.collections[0])
 
     def load_collections(self, folder_path=None, *collections):
@@ -93,12 +97,11 @@ class ImageViewerApp:
 
         # Label that holds the image
         self.image_label = tk.Label(self.root, padx = 0, pady = 0, bg = 'grey')
-
         
     def layout_widgets(self):
         self.image_label.pack()
 
-    def update_widgets(self, mode=None, tags=None, start=None, end=None):
+    def update_widgets(self, mode=None, tags=None, start=None, end=None, ):
         if mode == "add_group":
             self.add_tags_to_group(tags)
         elif mode == "add_range":
@@ -153,7 +156,8 @@ class ImageViewerApp:
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_details)
         self.root.bind('<Control-Key-3>', self.ui_manager.toggle_adv_details)
         self.root.bind('<Control-Key-4>', self.ui_manager.toggle_controls)
-        self.root.bind('<Control-Key-5>', self.ui_manager.toggle_tag)
+        self.root.bind('<Control-Key-5>', self.toggle_keybinds_and_tag_menu)
+   
      
         # Notebook/tab binding
         self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
@@ -165,6 +169,35 @@ class ImageViewerApp:
         # Locked
         self.root.bind('<Control-a>', self.lock_keybind)
         
+    def toggle_keybinds_and_tag_menu(self, event=None):
+        self.toggle_keybinds()
+        self.ui_manager.toggle_tag()
+
+    def toggle_keybinds(self):
+        if self.typing:
+            self.root.unbind('<Up>')
+            self.root.unbind('<Down>')
+            self.root.unbind('<Left>')
+            self.root.unbind('<Right>')
+            self.root.unbind('<Control-Shift-Tab>')
+            self.root.unbind('<Control-Tab>')
+            self.root.unbind('<a>')
+            self.root.unbind('<d>')
+            self.root.unbind('<w>')
+            self.root.unbind('<s>')
+        else:
+            self.root.bind('<Up>', self.zoom_in)
+            self.root.bind('<Down>', self.zoom_out)
+            self.root.bind('<Left>', self.previous_image)
+            self.root.bind('<Right>', self.next_image)
+            self.root.bind('<Control-Shift-Tab>', self.previous_group)
+            self.root.bind('<Control-Tab>', self.next_group)
+            self.root.bind('<a>', self.pan_left)
+            self.root.bind('<d>', self.pan_right)
+            self.root.bind('<w>', self.pan_up)
+            self.root.bind('<s>', self.pan_down)
+        self.typing = not self.typing
+
     def trim_groups(self):
         # Method for deleting empty groups
         for collection in self.collections:

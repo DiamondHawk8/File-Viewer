@@ -114,6 +114,7 @@ class UIManager:
         # Entry for tags
         self.tag_entry = tk.Entry(self.tag, width=50)
         
+        
         # Checkbutton to apply tags to the entire group
         self.apply_to_group = tk.BooleanVar()
         tk.Checkbutton(self.tag, text="Apply to entire group", variable=self.apply_to_group).pack(side=tk.LEFT, padx=5, pady=5)
@@ -228,6 +229,8 @@ class UIManager:
             self.tag.place_forget()
         else:
             self.tag.place(relx = 0.5, rely = 1, anchor = tk.S)
+        self.tag_visible = not self.tag_visible
+        self.root.focus_set()
 
 
 # Other
