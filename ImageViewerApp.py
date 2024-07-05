@@ -344,7 +344,7 @@ class ImageViewerApp:
         image = image.resize((new_width, new_height), Image.LANCZOS)
 
         # Create a new blank image with the same size as the screen to apply pan
-        result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (128, 128, 128))
+        result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (0, 0, 0, 0))
         
         # Calculate the position to paste the image onto the blank image
         paste_x = (self.screen_width - new_width) // 2 + panx
