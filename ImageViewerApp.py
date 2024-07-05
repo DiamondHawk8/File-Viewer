@@ -157,6 +157,7 @@ class ImageViewerApp:
         self.root.bind('<Control-m>', self.toggle_wrap)
 
         self.root.bind('<Control-w>', self.close_group)
+        self.root.bind('<Control-Shift-T>', self.reopen_group)
         # --- UI binds ---
         self.root.bind('<Control-Key-1>', self.ui_manager.toggle_notebook)
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_details)
@@ -373,8 +374,8 @@ class ImageViewerApp:
             # Store the current index of the group being swapped from
             self.stored_indices.update({current_group.name : self.current_image_index})
 
-            # Store the current group
-            self.closed_groups.append(current_group)
+            # Store the current group and its index
+            self.closed_groups.append((current_group, self.current_group_index))
 
             # Remove from collections list and notebook
             self.collections[self.current_collection_index].groups.remove(current_group)
@@ -395,7 +396,30 @@ class ImageViewerApp:
             self.update_widgets()
             self.display_current_image()
 
-    
+    def reopen_group(self, event = None):
+
+        current_collection = self.collections[self.current_collection_index]
+
+        info = self.closed_groups.pop()
+        index = info[1]
+        group = info[0]
+
+        # Insert the group at its previous index
+        self.collections[self.current_collection_index].groups.insert(index, group)
+
+        # Recreate the notebook tab
+        self.ui_manager.add_notebook_tab(group.name, index)
+
+        self.update_widgets()
+
+        if group.name in self.stored_indices:
+            self.current_image_index = self.stored_indices[group.name]
+        else:
+            self.current_image_index = 0
+        self.current_group_index = index
+
+        self.display_current_image()
+
 # ----------------Transformation Methods----------------
 
     def zoom_in(self, event=None):
