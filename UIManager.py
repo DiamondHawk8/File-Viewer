@@ -110,7 +110,6 @@ class UIManager:
     def initialize_tag_frame(self):
 
         self.tag = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
-
         # Entry for tags
         self.tag_entry = tk.Entry(self.tag, width=50)
         

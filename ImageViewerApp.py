@@ -6,7 +6,6 @@ from Structures import SmartImage, Group, Collection
 from UIManager import UIManager
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-# TODO IMAGE WRAP
 # TODO close groups and reopen
 # TODO fix the way transparent images display (potentially offer different bg options)
 # TODO gif structure
@@ -151,6 +150,8 @@ class ImageViewerApp:
 
         self.root.bind('<Control-f>', self.toggle_favorite)
 
+        self.root.bind('<Control-m>', self.toggle_wrap)
+
         # --- UI binds ---
         self.root.bind('<Control-Key-1>', self.ui_manager.toggle_notebook)
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_details)
@@ -232,14 +233,16 @@ class ImageViewerApp:
 
         # If the index exceeds the number of images in the group
         if self.current_image_index >= len(current_collection.groups[self.current_group_index].images):
-            # Wrap Around to the first image in the group
-            self.current_image_index = 0
+            if self.image_wrap:
+                # Wrap Around to the first image in the group
+                self.current_image_index = 0
+            else:
+                self.current_image_index -= 1
         
         # Display image
         self.display_current_image()
 
     def previous_image(self, event = None):
-        
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
 
@@ -247,8 +250,11 @@ class ImageViewerApp:
 
         # If the index goes below zero
         if self.current_image_index < 0:
-            # Wrap Around to the last image in the group
-            self.current_image_index = len(current_collection.groups[self.current_group_index].images) - 1
+            if self.image_wrap:
+                # Wrap Around to the last image in the group
+                self.current_image_index = len(current_collection.groups[self.current_group_index].images) - 1
+            else:
+                self.current_image_index += 1
 
         # Display image
         self.display_current_image()
@@ -346,6 +352,8 @@ class ImageViewerApp:
         self.image_label.config(image=img)
         self.image_label.image = img
 
+    def toggle_wrap(self, event = None):
+        self.image_wrap = not self.image_wrap
 # ----------------Transformation Methods----------------
 
     def zoom_in(self, event=None):
@@ -548,12 +556,10 @@ class ImageViewerApp:
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         self.ui_manager.update_image_details(current_image)
         
-
     def remove_tags_from_current(self, tags):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.remove_tag(tags)
         self.ui_manager.update_image_details(current_image)
-
 
 
 # TESTING ONLY    --------------------------
