@@ -24,6 +24,13 @@ class UIManager:
         # Create frame for tag adding/removing menu
         self.initialize_tag_frame()
 
+        # Create frame for zoom and pan controls
+        self.initialize_zoom_pan_frame()
+
+        # Create label for displaying filename
+        self.initialize_name_frame()
+
+
         self.layout_widgets()
 
         # Boolean attributes for toggleable UI elements
@@ -32,7 +39,7 @@ class UIManager:
         self.notebook_visible = False
         self.image_controls_visible = False
         self.tag_visible = False
-
+        self.name_visible = False
 
     def create_notebook(self, groups):
         # Add all groups to the notebook
@@ -135,6 +142,14 @@ class UIManager:
 
         # Button to remove tags
         self.remove_tag_button = tk.Button(self.tag, text="Remove Tags", command=self.remove_tags)
+    
+    def initialize_name_frame(self):
+        # Calling Update Image details will also update this method
+        self.filename_label = tk.Label(self.root, text=self.name_var, font=("Helvetica", 12), bg="gainsboro")
+
+
+    def initialize_zoom_pan_frame(self):
+        pass
 
     def layout_widgets(self):
 
@@ -184,6 +199,9 @@ class UIManager:
         self.group_var.set(image.group)
         self.tags_var.set(", ".join(image.tags))
         self.favorite_var.set("Yes" if image.favorite else "No")
+
+        # Update the filename label
+        self.filename_label.config(text=image.name)
 
         # Update the advanced details
         self.zoom_var.set(str(image.zoom_level))
@@ -238,6 +256,12 @@ class UIManager:
         self.tag_visible = not self.tag_visible
         self.root.focus_set()
 
+    def toggle_name(self, event = None):
+        if self.name_visible:
+           self.filename_label.place_forget()
+        else:
+           self.filename_label.place(anchor=tk.NE, relx=1, rely=0.00)
+        self.name_visible = not self.name_visible
 
 # Other
     def add_tags(self):

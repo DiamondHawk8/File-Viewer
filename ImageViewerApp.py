@@ -7,7 +7,7 @@ from UIManager import UIManager
 import itertools
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-# TODO name widget      
+   
 # TODO Weight and image position and transformation menu
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
@@ -160,11 +160,13 @@ class ImageViewerApp:
         self.root.bind('<Control-w>', self.close_group)
         self.root.bind('<Control-Shift-T>', self.reopen_group)
         # --- UI binds ---
-        self.root.bind('<Control-Key-1>', self.ui_manager.toggle_notebook)
-        self.root.bind('<Control-Key-2>', self.ui_manager.toggle_details)
-        self.root.bind('<Control-Key-3>', self.ui_manager.toggle_adv_details)
-        self.root.bind('<Control-Key-4>', self.ui_manager.toggle_controls)
-        self.root.bind('<Control-Key-5>', self.toggle_keybinds_and_tag_menu)
+        self.root.bind('<Control-Key-1>', self.ui_manager.toggle_name)
+        self.root.bind('<Control-Key-2>', self.ui_manager.toggle_notebook)
+        self.root.bind('<Control-Key-3>', self.ui_manager.toggle_details)
+        self.root.bind('<Control-Key-4>', self.ui_manager.toggle_adv_details)
+        self.root.bind('<Control-Key-5>', self.ui_manager.toggle_controls)
+        self.root.bind('<Control-Key-6>', self.toggle_keybinds_and_tag_menu)
+        
    
      
         # Notebook/tab binding
@@ -230,6 +232,8 @@ class ImageViewerApp:
             # Retrieve the image at the specified index
             smart_image = current_group.images[self.current_image_index]
             self.display_image(smart_image)
+
+            # Ensure that the widgets that display information about the current image are updated to watch whatever is being viewed
             self.ui_manager.update_image_details(smart_image)
 
     def next_image(self, event = None):
