@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image, ImageTk, ImageSequence
-from Structures import SmartImage, Group, Collection
+from Structures import SmartImage, Group, Collection, GifImage
 from UIManager import UIManager
 import itertools
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
@@ -192,39 +192,6 @@ class ImageViewerApp:
         # Locked
         self.root.bind('<Control-a>', self.lock_keybind)
         
-    def toggle_keybinds_and_tag_menu(self, event=None):
-        self.toggle_keybinds()
-        self.ui_manager.toggle_tag()
-
-    def toggle_keybinds_and_zoom_pan_menu(self, event=None):
-        self.toggle_keybinds()
-        self.ui_manager.toggle_zoom_pan()
-
-    def toggle_keybinds(self):
-        if self.typing:
-            self.root.unbind('<Up>')
-            self.root.unbind('<Down>')
-            self.root.unbind('<Left>')
-            self.root.unbind('<Right>')
-            self.root.unbind('<Control-Shift-Tab>')
-            self.root.unbind('<Control-Tab>')
-            self.root.unbind('<a>')
-            self.root.unbind('<d>')
-            self.root.unbind('<w>')
-            self.root.unbind('<s>')
-        else:
-            self.root.bind('<Up>', self.zoom_in)
-            self.root.bind('<Down>', self.zoom_out)
-            self.root.bind('<Left>', self.previous_image)
-            self.root.bind('<Right>', self.next_image)
-            self.root.bind('<Control-Shift-Tab>', self.previous_group)
-            self.root.bind('<Control-Tab>', self.next_group)
-            self.root.bind('<a>', self.pan_left)
-            self.root.bind('<d>', self.pan_right)
-            self.root.bind('<w>', self.pan_up)
-            self.root.bind('<s>', self.pan_down)
-        self.typing = not self.typing
-
     def trim_groups(self):
         # Method for deleting empty groups
         for collection in self.collections:
@@ -660,6 +627,39 @@ class ImageViewerApp:
                 self.root.focus_set()
                 break
     
+    def toggle_keybinds_and_tag_menu(self, event=None):
+        self.toggle_keybinds()
+        self.ui_manager.toggle_tag()
+
+    def toggle_keybinds_and_zoom_pan_menu(self, event=None):
+        self.toggle_keybinds()
+        self.ui_manager.toggle_zoom_pan()
+
+    def toggle_keybinds(self):
+        if self.typing:
+            self.root.unbind('<Up>')
+            self.root.unbind('<Down>')
+            self.root.unbind('<Left>')
+            self.root.unbind('<Right>')
+            self.root.unbind('<Control-Shift-Tab>')
+            self.root.unbind('<Control-Tab>')
+            self.root.unbind('<a>')
+            self.root.unbind('<d>')
+            self.root.unbind('<w>')
+            self.root.unbind('<s>')
+        else:
+            self.root.bind('<Up>', self.zoom_in)
+            self.root.bind('<Down>', self.zoom_out)
+            self.root.bind('<Left>', self.previous_image)
+            self.root.bind('<Right>', self.next_image)
+            self.root.bind('<Control-Shift-Tab>', self.previous_group)
+            self.root.bind('<Control-Tab>', self.next_group)
+            self.root.bind('<a>', self.pan_left)
+            self.root.bind('<d>', self.pan_right)
+            self.root.bind('<w>', self.pan_up)
+            self.root.bind('<s>', self.pan_down)
+        self.typing = not self.typing
+
 # ----------------Tag Management ----------------
 
 # All of these methods have a self.ui_manager.update_image_details(current_image) update statement so that if the details menu is open when tags are added it will properly reflect it
