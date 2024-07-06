@@ -204,24 +204,25 @@ class Collection:
 class GifImage(SmartImage):
     def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, animation_speed = 100):
         super().__init__(path, name, group, zoom_level, panx, pany, series, index, offset, weight, tags, favorite)
-        self.frames = self.load_gif_frames(path)
+        self.frames = []
         self.current_frame = 0
         self.animation = None
         self.animation_speed = animation_speed  # Speed in ms
         self.is_animated = True
         self.is_paused = False
 
-    def load_gif_frames(self, path):
-        image = Image.open(path)
-        frames = []
+        self.load_gif_frames()
+
+    def load_gif_frames(self):
         try:
-            while True:
-                frame = ImageTk.PhotoImage(image.copy())
-                frames.append(frame)
-                image.seek(len(frames))
-        except EOFError:
-            pass
-        return frames
+            with Image.open(self.path) as img:
+                for i, frame in enumerate(ImageSequence.Iterator(img)):
+                    frame_copy = frame.copy()
+                    self.frames.append(frame_copy)
+                    print(f"Loaded frame {i}")
+            print(f"Total frames loaded: {len(self.frames)}")
+        except Exception as e:
+            print(f"Error loading GIF: {e}")
 
     def play(self, root, image_label):
         if self.is_animated and not self.is_paused:
