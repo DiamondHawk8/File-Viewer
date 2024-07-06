@@ -104,7 +104,8 @@ class ImageViewerApp:
     def layout_widgets(self):
         self.image_label.pack()
 
-    def update_widgets(self, mode=None, tags=None, start=None, end=None, zoom_level=None, panx=None, pany=None, default=None, preconfig=None):
+    def update_widgets(self, mode=None, tags=None, start=None, end=None, zoom_level=None, panx=None, pany=None, default=None, preconfig=None, group_weight=None, group_favorite=None):
+        print("update_widgets called")
         if mode == "add_group":
             self.add_tags_to_group(tags)
         elif mode == "add_range":
@@ -123,9 +124,12 @@ class ImageViewerApp:
            self.apply_zoom_pan_to_range(zoom_level, panx, pany, start, end, default, preconfig)
         elif mode == "apply_current":
             self.apply_zoom_pan_to_current(zoom_level, panx, pany, default, preconfig)
+        elif mode == "update_group":
+            self.update_group_details(group_weight, group_favorite)
         
-        # Kinda lazy, but I'm just going to leave this here, to always run when this method is called, it's to make the notebook reflect what group you're in
-        current_group_name = self.collections[self.current_collection_index].groups[self.current_group_index].name
+        
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        current_group_name = current_group.name
         self.ui_manager.update_notebook(current_group_name)
 
     def initialize_keybinds(self):
@@ -172,6 +176,7 @@ class ImageViewerApp:
         self.root.bind('<Control-Key-5>', self.ui_manager.toggle_controls)
         self.root.bind('<Control-Key-6>', self.toggle_keybinds_and_tag_menu)
         self.root.bind('<Control-Key-7>', self.toggle_keybinds_and_zoom_pan_menu)
+        self.root.bind('<Control-Key-8>', self.ui_manager.toggle_group)
    
      
         # Notebook/tab binding
@@ -703,6 +708,11 @@ class ImageViewerApp:
         current_image.remove_tag(tags)
         self.ui_manager.update_image_details(current_image)
 
+    def update_group_details(self, group_weight, group_favorite):
+        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+        current_group.weight = group_weight
+        current_group.favorite = group_favorite
+        self.ui_manager.update_image_details(self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index], self.collections[self.current_collection_index].groups[self.current_group_index])
 
 # TESTING ONLY    --------------------------
     def create_test_collection(self):

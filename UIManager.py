@@ -30,7 +30,7 @@ class UIManager:
         # Create label for displaying filename
         self.initialize_name_frame()
 
-       # self.initialize_group_frame()
+        self.initialize_group_frame()
 
         self.layout_widgets()
 
@@ -202,8 +202,28 @@ class UIManager:
         self.apply_zoom_pan_to_group = tk.BooleanVar()
         self.apply_zoom_pan_to_group_check = tk.Checkbutton(self.zoom_pan_frame, text="Apply to entire group", variable=self.apply_zoom_pan_to_group)
 
+    def initialize_group_frame(self):
+        self.group_frame = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
     
+        # Group details StringVars
+        self.group_name_var = tk.StringVar()
+        self.group_path_var = tk.StringVar()
+        self.group_weight_var = tk.StringVar()
+        self.group_favorite_var = tk.BooleanVar()
 
+        # Group details labels
+        self.label_group_name = tk.Label(self.group_frame, text="Group Name:", bg="gainsboro")
+        self.label_group_path = tk.Label(self.group_frame, text="Path:", bg="gainsboro")
+        self.label_group_weight = tk.Label(self.group_frame, text="Weight:", bg="gainsboro")
+        self.label_group_favorite = tk.Label(self.group_frame, text="Favorite:", bg="gainsboro")
+
+        self.label_group_name_value = tk.Label(self.group_frame, textvariable=self.group_name_var, bg="gainsboro")
+        self.label_group_path_value = tk.Label(self.group_frame, textvariable=self.group_path_var, bg="gainsboro")
+        self.entry_group_weight_value = tk.Entry(self.group_frame, textvariable=self.group_weight_var, bg="gainsboro")
+        self.checkbox_group_favorite = tk.Checkbutton(self.group_frame, variable=self.group_favorite_var, bg="gainsboro")
+
+        # Button to save group details
+        self.save_group_button = tk.Button(self.group_frame, text="Save Group Details", command=self.save_group_details)
 
 
 
@@ -277,10 +297,21 @@ class UIManager:
         self.zoom_pan_range_entry.grid(row=9, column=1, sticky=tk.W, padx=5, pady=5)
         self.apply_zoom_pan_to_group_check.grid(row=10, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
 
+        # Layout for Group widget
+        self.label_group_name.grid(row=0, column=0, sticky=tk.W)
+        self.label_group_name_value.grid(row=0, column=1, sticky=tk.W)
+        self.label_group_path.grid(row=1, column=0, sticky=tk.W)
+        self.label_group_path_value.grid(row=1, column=1, sticky=tk.W)
+        self.label_group_weight.grid(row=2, column=0, sticky=tk.W)
+        self.entry_group_weight_value.grid(row=2, column=1, sticky=tk.W)
+        self.label_group_favorite.grid(row=3, column=0, sticky=tk.W)
+        self.checkbox_group_favorite.grid(row=3, column=1, sticky=tk.W)
+        self.save_group_button.grid(row=4, column=0, columnspan=2, pady=10)
 
 
 
-    def update_image_details(self, image):
+
+    def update_image_details(self, image, group = None):
         # Update the basic details
         self.name_var.set(image.name)
         self.group_var.set(image.group)
@@ -317,6 +348,14 @@ class UIManager:
         self.current_zoom_var.set(str(image.zoom_level))
         self.current_panx_var.set(str(image.panx))
         self.current_pany_var.set(str(image.pany))
+
+        # Update the group details
+        if group != None:
+            current_group = group
+            self.group_name_var.set(current_group.name)
+            self.group_path_var.set(current_group.folder_path)
+            self.group_weight_var.set(str(current_group.weight))
+            self.group_favorite_var.set(current_group.favorite)
 
         # Call the update callback to notify ImageViewerApp
         self.update_callback()
@@ -377,6 +416,19 @@ class UIManager:
             self.zoom_pan_frame.place(anchor=tk.NE, relx=0.95, rely=0.05)
         self.zoom_pan_visible = not self.zoom_pan_visible
         self.root.focus_set()
+
+
+    def toggle_group(self, event=None):
+        print("toggling group")
+        if self.group_visible:
+            self.group_frame.place_forget()
+        else:
+            self.group_frame.place(anchor=tk.NE, relx=0.95, rely=0.15)
+        self.group_visible = not self.group_visible
+
+
+
+
 # Other
     def add_tags(self):
             tags = self.tag_entry.get()
@@ -449,3 +501,9 @@ class UIManager:
                 print("Invalid range format. Use '-x,y' format.")
         else:
             self.update_callback("apply_current", zoom_level=zoom_level, panx=panx, pany=pany, default=default, preconfig=preconfig)
+
+
+    def save_group_details(self):
+        group_weight = float(self.group_weight_var.get())
+        group_favorite = self.group_favorite_var.get()
+        self.update_callback("update_group", group_weight=group_weight, group_favorite=group_favorite)
