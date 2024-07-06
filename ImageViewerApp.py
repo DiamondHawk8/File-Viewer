@@ -8,7 +8,7 @@ import itertools
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
    
-# TODO Group menu
+
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
@@ -531,10 +531,6 @@ class ImageViewerApp:
                 image.preconfig[1] = pany
                 image.preconfig[2] = zoom_level
         self.display_current_image()
-
-
-
-
 
 
 # ----------------Configuaration Management Methods----------------
