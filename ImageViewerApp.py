@@ -70,6 +70,8 @@ class ImageViewerApp:
         # Copy of the initial collections for saving purposes
         self.collections_copy = self.collections
 
+        self.update_widgets()
+
     def load_collections(self, folder_path=None, *collections):
         if folder_path:
             # Create a new Collection from the folder path and add it to the list
@@ -131,7 +133,8 @@ class ImageViewerApp:
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         current_group_name = current_group.name
         self.ui_manager.update_notebook(current_group_name)
-
+        self.ui_manager.update_group_details(self.collections[self.current_collection_index].groups[self.current_group_index])
+        
     def initialize_keybinds(self):
 
         self.root.bind('<Up>', self.zoom_in)
@@ -184,7 +187,7 @@ class ImageViewerApp:
 
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
-        self.root.bind('<Control-p>', self.print_tags)
+        self.root.bind('<Control-p>', self.print_group_weight)
 
         # Locked
         self.root.bind('<Control-a>', self.lock_keybind)
@@ -753,6 +756,9 @@ class ImageViewerApp:
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         print(f"Tags for image {current_image.name}: {current_image.tags}")
     
+    def print_group_weight(self, event = None):
+        print(self.collections[self.current_collection_index].groups[self.current_group_index].weight)
+
 def print_collection_details(collection):
     for group in collection.groups:
         print(f"Group: {group.name}, Depth: {group.depth}, Images: {len(group.images)}")
