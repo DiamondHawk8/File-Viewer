@@ -47,7 +47,6 @@ class ImageViewerApp:
 
         # Layout the more advanced widgets
         self.ui_manager = UIManager(root, self.update_widgets)
-        self.ui_manager.layout_widgets()
 
         # Bind keys to respective functions
         self.initialize_keybinds()
