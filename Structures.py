@@ -153,8 +153,9 @@ class Group:
             elif item.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
                 # print(f"Found image: {item_path}")
                 if item.lower().endswith('.gif'):
-                    gif = Image.open(item_path)
-                    self.add_image(GifImage(item_path, item, group=self.name, animation_speed=gif.info['duration']))
+                    with Image.open(item_path) as gif:
+                        animation_speed = gif.info.get('duration', 100)  # Use a default value if 'duration' is missing
+                    self.add_image(GifImage(item_path, item, group=self.name, animation_speed=animation_speed))
                 else:
                     self.add_image(SmartImage(item_path, item, group=self.name))
 
