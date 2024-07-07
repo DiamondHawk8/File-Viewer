@@ -495,7 +495,6 @@ class UIManager:
         elif (self.zoom_pan_range_entry != ""):
             range_text = self.zoom_pan_range_entry.get()
             try:
-                print(range_text.split(','))
                 start, end = map(int, range_text.split(','))
                 self.update_callback("apply_range", zoom_level=zoom_level, panx=panx, pany=pany, start=start, end=end, default=default, preconfig=preconfig)
             except ValueError:
@@ -509,7 +508,6 @@ class UIManager:
         self.group_name_var.set(current_group.name)
         self.group_path_var.set(current_group.folder_path)
         self.group_current_weight_var.set(str(current_group.weight))
-        print(current_group.weight)
         self.group_favorite_var.set(current_group.favorite)
 
     def save_group_details(self):

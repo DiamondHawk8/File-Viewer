@@ -8,13 +8,9 @@ import itertools
 import io
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-   
-
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
-
-        
 
 class ImageViewerApp:
     def __init__(self, root):
@@ -204,6 +200,49 @@ class ImageViewerApp:
 
 # ----------------Display Methods----------------
 
+    def display_image(self, smart_image):
+
+        # Open the image using the path from the SmartImage object
+        image = Image.open(smart_image.path)
+
+        # Retrieve zoom level, panx, and pany from the SmartImage object
+        zoom_level = smart_image.zoom_level
+        panx = smart_image.panx
+        pany = smart_image.pany
+
+        # Calculate the scaling factor to maintain the aspect ratio
+        screen_ratio = self.screen_width / self.screen_height
+        image_ratio = image.width / image.height
+
+        if image_ratio > screen_ratio:
+            # Image is wider relative to screen
+            scale_factor = self.screen_width / image.width
+        else:
+            # Image is taller relative to screen
+            scale_factor = self.screen_height / image.height
+
+        # Calculate new dimensions with zoom level
+        new_width = int(image.width * scale_factor * zoom_level)
+        new_height = int(image.height * scale_factor * zoom_level)
+
+        # Resize the image maintaining the aspect ratio
+        image = image.resize((new_width, new_height), Image.LANCZOS)
+
+        # Create a new blank image with the same size as the screen to apply pan
+        result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (0, 0, 0, 0))
+        
+        # Calculate the position to paste the image onto the blank image
+        paste_x = (self.screen_width - new_width) // 2 + panx
+        paste_y = (self.screen_height - new_height) // 2 + pany
+
+        # Paste the resized image onto the blank image
+        result_image.paste(image, (paste_x, paste_y))
+
+        # Convert the final image to a PhotoImage for displaying in the label
+        img = ImageTk.PhotoImage(result_image)
+        self.image_label.config(image=img)
+        self.image_label.image = img
+
     def display_current_image(self, event=None):
         current_collection = self.collections[self.current_collection_index]
         current_group = current_collection.groups[self.current_group_index]
@@ -267,15 +306,14 @@ class ImageViewerApp:
             self.image_label.config(image=img)
             self.image_label.image = img
 
-
-            
             # Update to the next frame
             self.current_frame = (self.current_frame + 1) % len(self.current_gif.frames)
             self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
 
-
     def next_image(self, event = None):
         
+        print(f"NEXT GROUP CALLED, {event}")
+
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
 
@@ -359,48 +397,6 @@ class ImageViewerApp:
         # Display image from next group
         self.display_current_image()
         
-    def display_image(self, smart_image):
-
-        # Open the image using the path from the SmartImage object
-        image = Image.open(smart_image.path)
-
-        # Retrieve zoom level, panx, and pany from the SmartImage object
-        zoom_level = smart_image.zoom_level
-        panx = smart_image.panx
-        pany = smart_image.pany
-
-        # Calculate the scaling factor to maintain the aspect ratio
-        screen_ratio = self.screen_width / self.screen_height
-        image_ratio = image.width / image.height
-
-        if image_ratio > screen_ratio:
-            # Image is wider relative to screen
-            scale_factor = self.screen_width / image.width
-        else:
-            # Image is taller relative to screen
-            scale_factor = self.screen_height / image.height
-
-        # Calculate new dimensions with zoom level
-        new_width = int(image.width * scale_factor * zoom_level)
-        new_height = int(image.height * scale_factor * zoom_level)
-
-        # Resize the image maintaining the aspect ratio
-        image = image.resize((new_width, new_height), Image.LANCZOS)
-
-        # Create a new blank image with the same size as the screen to apply pan
-        result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (0, 0, 0, 0))
-        
-        # Calculate the position to paste the image onto the blank image
-        paste_x = (self.screen_width - new_width) // 2 + panx
-        paste_y = (self.screen_height - new_height) // 2 + pany
-
-        # Paste the resized image onto the blank image
-        result_image.paste(image, (paste_x, paste_y))
-
-        # Convert the final image to a PhotoImage for displaying in the label
-        img = ImageTk.PhotoImage(result_image)
-        self.image_label.config(image=img)
-        self.image_label.image = img
 
     def toggle_wrap(self, event = None):
         self.image_wrap = not self.image_wrap
