@@ -153,7 +153,8 @@ class Group:
             elif item.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
                 # print(f"Found image: {item_path}")
                 if item.lower().endswith('.gif'):
-                    with Image.open(item_path) as gif:
+                    with Image.open(item_path) as gif:\
+                    # Perhaps set default duration lower ----------------------------------------------------------------
                         animation_speed = gif.info.get('duration', 100)  # Use a default value if 'duration' is missing
                     self.add_image(GifImage(item_path, item, group=self.name, animation_speed=animation_speed))
                 else:
@@ -224,56 +225,24 @@ class GifImage(SmartImage):
         except Exception as e:
             print(f"Error loading GIF: {e}")
 
-    def play(self, root, image_label):
-        if self.is_animated and not self.is_paused:
-            self.current_frame = (self.current_frame + 1) % len(self.frames)
-            frame = self.frames[self.current_frame]
-            
-            # Apply zoom and pan to the current frame
-            zoom_level = self.zoom_level
-            panx = self.panx
-            pany = self.pany
-
-            screen_ratio = image_label.winfo_width() / image_label.winfo_height()
-            image_ratio = frame.width / frame.height
-
-            if image_ratio > screen_ratio:
-                scale_factor = image_label.winfo_width() / frame.width
-            else:
-                scale_factor = image_label.winfo_height() / frame.height
-
-            new_width = int(frame.width * scale_factor * zoom_level)
-            new_height = int(frame.height * scale_factor * zoom_level)
-
-            frame = frame.resize((new_width, new_height), Image.LANCZOS)
-            result_image = Image.new("RGBA", (image_label.winfo_width(), image_label.winfo_height()), (0, 0, 0, 0))
-
-            paste_x = (image_label.winfo_width() - new_width) // 2 + panx
-            paste_y = (image_label.winfo_height() - new_height) // 2 + pany
-
-            result_image.paste(frame, (paste_x, paste_y))
-
-            img = ImageTk.PhotoImage(result_image)
-            image_label.config(image=img)
-            image_label.image = img
-
-            self.animation = root.after(self.animation_speed, self.play, root, image_label)
-
-    def pause(self):
-        if self.animation:
-            self.animation.after_cancel(self.animation)
-            self.is_paused = True
-
-    def resume(self, root, image_label):
-        if self.is_paused:
-            self.is_paused = False
-            self.play(root, image_label)
+    def play(self):
+        self.is_animated = True
 
     def stop(self):
         self.is_animated = False
-        if self.animation:
-            self.animation.after_cancel(self.animation)
-            self.animation = None
+
+    def pause(self):
+        self.is_paused = True
+
+    def resume(self):
+        self.is_paused = False
+
 
     def set_animation_speed(self, speed):
         self.animation_speed = speed
+
+# Testing 
+def get_duration(path):
+    with Image.open(path) as gif:
+        animation_speed = gif.info.get('duration', 1057) 
+    return (animation_speed)

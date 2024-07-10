@@ -3,11 +3,13 @@ from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image, ImageTk, ImageSequence
 from Structures import SmartImage, Group, Collection, GifImage
+import Structures
 from UIManager import UIManager
 import itertools
 import io
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
+# TODO fix zooming with gif
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
@@ -260,69 +262,77 @@ class ImageViewerApp:
     def display_gif(self, gif_image):
         """Play the GIF image."""
         self.current_gif = gif_image
-        self.current_frame = 0
+
+        # Make is_animated attribute be true
+        self.current_gif.play()
+
         self.update_gif_frame()
 
     def update_gif_frame(self):
         """Update the frame of the GIF."""
-        if self.current_gif and self.current_gif.is_animated:
-            
-            # Image for getting dimentions
-            frame = self.current_gif.frames[self.current_frame]
-            image = ImageTk.PhotoImage(frame)
-            # Retrieve zoom level, panx, and pany from the GifImage object
-            zoom_level = self.current_gif.zoom_level
-            panx = self.current_gif.panx
-            pany = self.current_gif.pany
+        # Image for getting dimentions
+        frame = self.current_gif.frames[self.current_gif.current_frame]
+        image = ImageTk.PhotoImage(frame)
+        # Retrieve zoom level, panx, and pany from the GifImage object
+        zoom_level = self.current_gif.zoom_level
+        panx = self.current_gif.panx
+        pany = self.current_gif.pany
 
-            # Calculate the scaling factor to maintain the aspect ratio
-            screen_ratio = self.screen_width / self.screen_height
-            image_ratio = image.width() / image.height()
-            
+        # Calculate the scaling factor to maintain the aspect ratio
+        screen_ratio = self.screen_width / self.screen_height
+        image_ratio = image.width() / image.height()
+        
 
-            if image_ratio > screen_ratio:
-                # Image is wider relative to screen
-                scale_factor = self.screen_width / image.width()
-            else:
-                # Image is taller relative to screen
-                scale_factor = self.screen_height / image.height()
-            
-            # Calculate new dimensions with zoom level
-            new_width = int(image.width() * scale_factor * zoom_level)
-            new_height = int(image.height() * scale_factor * zoom_level)
+        if image_ratio > screen_ratio:
+            # Image is wider relative to screen
+            scale_factor = self.screen_width / image.width()
+        else:
+            # Image is taller relative to screen
+            scale_factor = self.screen_height / image.height()
+        
+        # Calculate new dimensions with zoom level
+        new_width = int(image.width() * scale_factor * zoom_level)
+        new_height = int(image.height() * scale_factor * zoom_level)
 
-            # Resize the image maintaining the aspect ratio
-            frame = frame.resize((new_width, new_height), Image.LANCZOS)
+        # Resize the image maintaining the aspect ratio
+        frame = frame.resize((new_width, new_height), Image.LANCZOS)
 
-            # Create a new blank image with the same size as the screen to apply pan
-            result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (0, 0, 0, 0))
+        # Create a new blank image with the same size as the screen to apply pan
+        result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (0, 0, 0, 0))
 
-            # Calculate the position to paste the image onto the blank image
-            paste_x = (self.screen_width - new_width) // 2 + panx
-            paste_y = (self.screen_height - new_height) // 2 + pany
+        # Calculate the position to paste the image onto the blank image
+        paste_x = (self.screen_width - new_width) // 2 + panx
+        paste_y = (self.screen_height - new_height) // 2 + pany
 
-            # Paste the resized image onto the blank image
-            result_image.paste(frame, (paste_x, paste_y))
+        # Paste the resized image onto the blank image
+        result_image.paste(frame, (paste_x, paste_y))
 
-            # Convert the final image to a PhotoImage for displaying in the label
-            img = ImageTk.PhotoImage(result_image)
+        # Convert the final image to a PhotoImage for displaying in the label
+        img = ImageTk.PhotoImage(result_image)
+        
+        # Anti-Garbage collection line
+        self.image_label.image = img
+
+
+        if not self.current_gif.is_paused and self.current_gif.is_animated:
+
+            # 2nd check in case image gets changed while this method is running 
             self.image_label.config(image=img)
-            self.image_label.image = img
-
+        
             # Update to the next frame
-
             # Modulus operation ensures the frames wrap around to the end
-            self.current_frame = (self.current_frame + 1) % len(self.current_gif.frames)
+            self.current_gif.current_frame = (self.current_gif.current_frame + 1) % len(self.current_gif.frames)
 
+            # 2nd check in case image gets changed while this method is running 
+            if self.current_gif.is_animated:
+                # Displays the next frame of the gif after the specified delay
+                self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
+        elif self.current_gif.is_animated:
+            self.image_label.config(image=img)
+        else:
+            return 
 
-           # self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
-
-
-    # Testing only
-    def next_frame(self, event = None):
-        self.update_gif_frame()
-
-
+        
 
 
     def next_image(self, event = None):
@@ -819,6 +829,9 @@ class ImageViewerApp:
     def print_group_weight(self, event = None):
         print(self.collections[self.current_collection_index].groups[self.current_group_index].weight)
 
+    def next_frame(self, event = None):
+        self.update_gif_frame()
+    
 def print_collection_details(collection):
     for group in collection.groups:
         print(f"Group: {group.name}, Depth: {group.depth}, Images: {len(group.images)}")
@@ -847,6 +860,8 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ImageViewerApp(root)
     root.mainloop()
+    print("-----------------------------------")
+    print(Structures.get_duration(r"C:\Users\darks\VSCODE\File-Viewer\ZTakeoutTest\Takeout\Drive\Gifs\200w (1).gif"))
 
 
 
