@@ -185,6 +185,8 @@ class ImageViewerApp:
         self.root.bind('<Control-Right>', self.force_next_image)
         self.root.bind('<Control-p>', self.print_group_weight)
 
+        self.root.bind('<space>', self.next_frame)
+
         # Locked
         self.root.bind('<Control-a>', self.lock_keybind)
         
@@ -276,6 +278,7 @@ class ImageViewerApp:
             # Calculate the scaling factor to maintain the aspect ratio
             screen_ratio = self.screen_width / self.screen_height
             image_ratio = image.width() / image.height()
+            
 
             if image_ratio > screen_ratio:
                 # Image is wider relative to screen
@@ -307,8 +310,20 @@ class ImageViewerApp:
             self.image_label.image = img
 
             # Update to the next frame
+
+            # Modulus operation ensures the frames wrap around to the end
             self.current_frame = (self.current_frame + 1) % len(self.current_gif.frames)
-            self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
+
+
+           # self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
+
+
+    # Testing only
+    def next_frame(self, event = None):
+        self.update_gif_frame()
+
+
+
 
     def next_image(self, event = None):
         
@@ -397,7 +412,6 @@ class ImageViewerApp:
         # Display image from next group
         self.display_current_image()
         
-
     def toggle_wrap(self, event = None):
         self.image_wrap = not self.image_wrap
     

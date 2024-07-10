@@ -203,7 +203,7 @@ class Collection:
 #TODO Gif class (inherits from smart image)
 
 class GifImage(SmartImage):
-    def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, animation_speed = 100):
+    def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, animation_speed=100):
         super().__init__(path, name, group, zoom_level, panx, pany, series, index, offset, weight, tags, favorite)
         self.frames = []
         self.current_frame = 0
@@ -211,7 +211,6 @@ class GifImage(SmartImage):
         self.animation_speed = animation_speed  # Speed in ms
         self.is_animated = True
         self.is_paused = False
-
         self.load_gif_frames()
 
     def load_gif_frames(self):
@@ -228,13 +227,41 @@ class GifImage(SmartImage):
     def play(self, root, image_label):
         if self.is_animated and not self.is_paused:
             self.current_frame = (self.current_frame + 1) % len(self.frames)
-            image_label.config(image=self.frames[self.current_frame])
-            image_label.image = self.frames[self.current_frame]
+            frame = self.frames[self.current_frame]
+            
+            # Apply zoom and pan to the current frame
+            zoom_level = self.zoom_level
+            panx = self.panx
+            pany = self.pany
+
+            screen_ratio = image_label.winfo_width() / image_label.winfo_height()
+            image_ratio = frame.width / frame.height
+
+            if image_ratio > screen_ratio:
+                scale_factor = image_label.winfo_width() / frame.width
+            else:
+                scale_factor = image_label.winfo_height() / frame.height
+
+            new_width = int(frame.width * scale_factor * zoom_level)
+            new_height = int(frame.height * scale_factor * zoom_level)
+
+            frame = frame.resize((new_width, new_height), Image.LANCZOS)
+            result_image = Image.new("RGBA", (image_label.winfo_width(), image_label.winfo_height()), (0, 0, 0, 0))
+
+            paste_x = (image_label.winfo_width() - new_width) // 2 + panx
+            paste_y = (image_label.winfo_height() - new_height) // 2 + pany
+
+            result_image.paste(frame, (paste_x, paste_y))
+
+            img = ImageTk.PhotoImage(result_image)
+            image_label.config(image=img)
+            image_label.image = img
+
             self.animation = root.after(self.animation_speed, self.play, root, image_label)
 
     def pause(self):
         if self.animation:
-            self.root.after_cancel(self.animation)
+            self.animation.after_cancel(self.animation)
             self.is_paused = True
 
     def resume(self, root, image_label):
@@ -245,12 +272,8 @@ class GifImage(SmartImage):
     def stop(self):
         self.is_animated = False
         if self.animation:
-            self.canvas.after_cancel(self.animation)
+            self.animation.after_cancel(self.animation)
             self.animation = None
-
-    def convert_to_gif(self, image_paths, save_path, duration=100):
-        frames = [Image.open(image_path) for image_path in image_paths]
-        frames[0].save(save_path, save_all=True, append_images=frames[1:], duration=duration, loop=0)
 
     def set_animation_speed(self, speed):
         self.animation_speed = speed
