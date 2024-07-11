@@ -5,8 +5,9 @@ from PIL import Image, ImageTk, ImageSequence
 from Structures import SmartImage, Group, Collection, GifImage
 import Structures
 from UIManager import UIManager
-import itertools
-import io
+import threading
+
+
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
 # TODO fix zooming with gif
@@ -18,6 +19,9 @@ class ImageViewerApp:
     def __init__(self, root):
         
         self.root = root
+        
+        # Lock for use with gifs
+        self.lock = threading.Lock()
 
         # Attribute to represent a list of collections
         self.collections = []
@@ -69,6 +73,8 @@ class ImageViewerApp:
         self.collections_copy = self.collections
 
         self.update_widgets()
+
+        self.current_gif = None
 
     def load_collections(self, folder_path=None, *collections):
         if folder_path:
@@ -186,6 +192,7 @@ class ImageViewerApp:
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
         self.root.bind('<Control-p>', self.print_group_weight)
+        self.root.bind('<Control-m>', self.display_current_image) 
 
         self.root.bind('<space>', self.next_frame)
 
@@ -205,7 +212,7 @@ class ImageViewerApp:
 # ----------------Display Methods----------------
 
     def display_image(self, smart_image):
-
+        print("TESTING display image called")
         # Open the image using the path from the SmartImage object
         image = Image.open(smart_image.path)
 
@@ -248,6 +255,7 @@ class ImageViewerApp:
         self.image_label.image = img
 
     def display_current_image(self, event=None):
+        print("TESTING display current image called")
         current_collection = self.collections[self.current_collection_index]
         current_group = current_collection.groups[self.current_group_index]
 
@@ -270,74 +278,77 @@ class ImageViewerApp:
 
     def update_gif_frame(self):
         """Update the frame of the GIF."""
-        # Image for getting dimentions
-        frame = self.current_gif.frames[self.current_gif.current_frame]
-        image = ImageTk.PhotoImage(frame)
-        # Retrieve zoom level, panx, and pany from the GifImage object
-        zoom_level = self.current_gif.zoom_level
-        panx = self.current_gif.panx
-        pany = self.current_gif.pany
+        with self.lock:
+            print("TESTING 2")
+            if not self.current_gif or not self.current_gif.frames or not self.current_gif.is_animated:
+                return
 
-        # Calculate the scaling factor to maintain the aspect ratio
-        screen_ratio = self.screen_width / self.screen_height
-        image_ratio = image.width() / image.height()
-        
+            # Image for getting dimensions
+            frame = self.current_gif.frames[self.current_gif.current_frame]
+            image = ImageTk.PhotoImage(frame)
 
-        if image_ratio > screen_ratio:
-            # Image is wider relative to screen
-            scale_factor = self.screen_width / image.width()
-        else:
-            # Image is taller relative to screen
-            scale_factor = self.screen_height / image.height()
-        
-        # Calculate new dimensions with zoom level
-        new_width = int(image.width() * scale_factor * zoom_level)
-        new_height = int(image.height() * scale_factor * zoom_level)
+            # Retrieve zoom level, panx, and pany from the GifImage object
+            zoom_level = self.current_gif.zoom_level
+            panx = self.current_gif.panx
+            pany = self.current_gif.pany
 
-        # Resize the image maintaining the aspect ratio
-        frame = frame.resize((new_width, new_height), Image.LANCZOS)
+            # Calculate the scaling factor to maintain the aspect ratio
+            screen_ratio = self.screen_width / self.screen_height
+            image_ratio = image.width() / image.height()
 
-        # Create a new blank image with the same size as the screen to apply pan
-        result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (0, 0, 0, 0))
+            if image_ratio > screen_ratio:
+                # Image is wider relative to screen
+                scale_factor = self.screen_width / image.width()
+            else:
+                # Image is taller relative to screen
+                scale_factor = self.screen_height / image.height()
 
-        # Calculate the position to paste the image onto the blank image
-        paste_x = (self.screen_width - new_width) // 2 + panx
-        paste_y = (self.screen_height - new_height) // 2 + pany
+            # Calculate new dimensions with zoom level
+            new_width = int(image.width() * scale_factor * zoom_level)
+            new_height = int(image.height() * scale_factor * zoom_level)
 
-        # Paste the resized image onto the blank image
-        result_image.paste(frame, (paste_x, paste_y))
+            # Resize the image maintaining the aspect ratio
+            frame = frame.resize((new_width, new_height), Image.LANCZOS)
 
-        # Convert the final image to a PhotoImage for displaying in the label
-        img = ImageTk.PhotoImage(result_image)
-        
-        # Anti-Garbage collection line
-        self.image_label.image = img
+            # Create a new blank image with the same size as the screen to apply pan
+            result_image = Image.new("RGBA", (self.screen_width, self.screen_height), (0, 0, 0, 0))
 
+            # Calculate the position to paste the image onto the blank image
+            paste_x = (self.screen_width - new_width) // 2 + panx
+            paste_y = (self.screen_height - new_height) // 2 + pany
 
-        if not self.current_gif.is_paused and self.current_gif.is_animated:
+            # Paste the resized image onto the blank image
+            result_image.paste(frame, (paste_x, paste_y))
 
-            # 2nd check in case image gets changed while this method is running 
-            self.image_label.config(image=img)
-        
-            # Update to the next frame
-            # Modulus operation ensures the frames wrap around to the end
-            self.current_gif.current_frame = (self.current_gif.current_frame + 1) % len(self.current_gif.frames)
+            # Convert the final image to a PhotoImage for displaying in the label
+            img = ImageTk.PhotoImage(result_image)
 
-            # 2nd check in case image gets changed while this method is running 
-            if self.current_gif.is_animated:
-                # Displays the next frame of the gif after the specified delay
-                self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
-        elif self.current_gif.is_animated:
+            # Anti-Garbage collection line
+            self.image_label.image = img
+
+            if self.current_gif.is_animated and not self.current_gif.is_paused:
+                self.image_label.config(image=img)
+                self.current_gif.current_frame = (self.current_gif.current_frame + 1) % len(self.current_gif.frames)
+
+        # Schedule the next frame update outside the lock
+        if self.current_gif.is_animated and not self.current_gif.is_paused:
+            self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
+        elif self.current_gif.is_paused and self.current_gif.is_animated:
             self.image_label.config(image=img)
         else:
-            return 
+            return
 
-        
+            
 
 
     def next_image(self, event = None):
         
-        print(f"NEXT GROUP CALLED, {event}")
+        print(f"NEXT IMAGE CALLED, {event}")
+        
+        with self.lock:
+            # Prevent any current gif from cycling
+            if self.current_gif and self.current_gif.is_animated:
+                self.current_gif.stop()
 
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
@@ -356,6 +367,12 @@ class ImageViewerApp:
         self.display_current_image()
 
     def previous_image(self, event = None):
+
+        with self.lock:
+            # Prevent any current gif from cycling
+            if self.current_gif and self.current_gif.is_animated:
+                self.current_gif.stop()
+
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
 
@@ -373,6 +390,11 @@ class ImageViewerApp:
         self.display_current_image()
 
     def next_group(self, event = None):
+
+        with self.lock:
+            if self.current_gif and self.current_gif.is_animated:
+                self.current_gif.stop()
+
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
         # Access the current group
@@ -398,6 +420,12 @@ class ImageViewerApp:
         self.display_current_image()
             
     def previous_group(self, event = None):
+
+        
+        with self.lock:
+            if self.current_gif and self.current_gif.is_animated:
+                self.current_gif.stop()
+
         # Access the current collection
         current_collection = self.collections[self.current_collection_index]
         # Access the current group
@@ -421,7 +449,7 @@ class ImageViewerApp:
 
         # Display image from next group
         self.display_current_image()
-        
+    
     def toggle_wrap(self, event = None):
         self.image_wrap = not self.image_wrap
     
