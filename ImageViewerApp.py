@@ -10,6 +10,7 @@ import threading
 
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
+# TODO preprocess gifs so they dont cycle frames at inconsistent speeds
 # TODO fix zooming with gif
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
@@ -75,6 +76,7 @@ class ImageViewerApp:
         self.update_widgets()
 
         self.current_gif = None
+
 
     def load_collections(self, folder_path=None, *collections):
         if folder_path:
@@ -193,6 +195,7 @@ class ImageViewerApp:
         self.root.bind('<Control-Right>', self.force_next_image)
         self.root.bind('<Control-p>', self.print_group_weight)
         self.root.bind('<Control-m>', self.display_current_image) 
+        self.root.bind('<Control-x>', self.decrease_animation_speed) 
 
         self.root.bind('<space>', self.next_frame)
 
@@ -278,10 +281,22 @@ class ImageViewerApp:
 
     def update_gif_frame(self):
         """Update the frame of the GIF."""
+        
+
         with self.lock:
-            print("TESTING 2")
+            
             if not self.current_gif or not self.current_gif.frames or not self.current_gif.is_animated:
                 return
+
+            # Check frame order
+            if hasattr(self, 'last_frame_index'):
+                expected_next_frame = (self.last_frame_index + 1) % len(self.current_gif.frames)
+                if self.current_gif.current_frame != expected_next_frame:
+                    print(f"Frame out of order: expected {expected_next_frame}, got {self.current_gif.current_frame}")
+                else:
+                    print(f"Frame in order: {self.current_gif.current_frame}")
+            self.last_frame_index = self.current_gif.current_frame
+
 
             # Image for getting dimensions
             frame = self.current_gif.frames[self.current_gif.current_frame]
@@ -338,8 +353,9 @@ class ImageViewerApp:
         else:
             return
 
-            
-
+                
+    def decrease_animation_speed(self, event = None):
+        self.current_gif.animation_speed = self.current_gif.animation_speed + 100
 
     def next_image(self, event = None):
         
@@ -421,7 +437,6 @@ class ImageViewerApp:
             
     def previous_group(self, event = None):
 
-        
         with self.lock:
             if self.current_gif and self.current_gif.is_animated:
                 self.current_gif.stop()
