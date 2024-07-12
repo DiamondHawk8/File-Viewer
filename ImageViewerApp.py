@@ -10,8 +10,10 @@ import threading
 
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
+
 # TODO preprocess gifs so they dont cycle frames at inconsistent speeds
 # TODO fix zooming with gif
+# TODO make closing tabs comptable with gif multithreading
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
@@ -281,26 +283,15 @@ class ImageViewerApp:
 
     def update_gif_frame(self):
         """Update the frame of the GIF."""
-        
-
         with self.lock:
-            
             if not self.current_gif or not self.current_gif.frames or not self.current_gif.is_animated:
                 return
-
-            # Check frame order
-            if hasattr(self, 'last_frame_index'):
-                expected_next_frame = (self.last_frame_index + 1) % len(self.current_gif.frames)
-                if self.current_gif.current_frame != expected_next_frame:
-                    print(f"Frame out of order: expected {expected_next_frame}, got {self.current_gif.current_frame}")
-                else:
-                    print(f"Frame in order: {self.current_gif.current_frame}")
-            self.last_frame_index = self.current_gif.current_frame
-
 
             # Image for getting dimensions
             frame = self.current_gif.frames[self.current_gif.current_frame]
             image = ImageTk.PhotoImage(frame)
+
+            print(f"TESTING, attempting to display frame: {self.current_gif.current_frame}")
 
             # Retrieve zoom level, panx, and pany from the GifImage object
             zoom_level = self.current_gif.zoom_level
@@ -344,16 +335,12 @@ class ImageViewerApp:
             if self.current_gif.is_animated and not self.current_gif.is_paused:
                 self.image_label.config(image=img)
                 self.current_gif.current_frame = (self.current_gif.current_frame + 1) % len(self.current_gif.frames)
-
-        # Schedule the next frame update outside the lock
-        if self.current_gif.is_animated and not self.current_gif.is_paused:
-            self.animation = self.root.after(self.current_gif.animation_speed, self.update_gif_frame)
-        elif self.current_gif.is_paused and self.current_gif.is_animated:
-            self.image_label.config(image=img)
-        else:
-            return
-
                 
+                # Schedule the next frame update with the correct duration
+                next_duration = self.current_gif.get_next_frame_duration()
+                self.animation = self.root.after(next_duration, self.update_gif_frame)
+
+        
     def decrease_animation_speed(self, event = None):
         self.current_gif.animation_speed = self.current_gif.animation_speed + 100
 
@@ -531,13 +518,17 @@ class ImageViewerApp:
     def zoom_in(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.zoom_level += 0.01  # Increase zoom level
+        if isinstance(current_image, GifImage):
+            current_image.resize_frames()  # Resize GIF frames
         self.display_current_image()
 
     def zoom_out(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         if current_image.zoom_level > 0.01:
             current_image.zoom_level -= 0.01  # Decrease zoom level
-            self.display_current_image()
+            if isinstance(current_image, GifImage):
+                current_image.resize_frames()  # Resize GIF frames
+        self.display_current_image()
 
     def pan_left(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
@@ -575,6 +566,8 @@ class ImageViewerApp:
                 image.preconfig[0] = panx
                 image.preconfig[1] = pany
                 image.preconfig[2] = zoom_level
+            if isinstance(image, GifImage):
+                image.resize_frames()  # Resize GIF frames
         self.display_current_image()
 
     def apply_zoom_pan_to_current(self, zoom_level, panx, pany, default, preconfig):
@@ -592,8 +585,10 @@ class ImageViewerApp:
             current_image.preconfig[0] = panx
             current_image.preconfig[1] = pany
             current_image.preconfig[2] = zoom_level
+        if isinstance(current_image, GifImage):
+            current_image.resize_frames()  # Resize GIF frames
         self.display_current_image()
-    
+        
     def apply_zoom_pan_to_range(self, zoom_level, panx, pany, start, end, default, preconfig):
         print("appying to range")
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
@@ -614,6 +609,8 @@ class ImageViewerApp:
                 image.preconfig[0] = panx
                 image.preconfig[1] = pany
                 image.preconfig[2] = zoom_level
+            if isinstance(image, GifImage):
+                image.resize_frames()  # Resize GIF frames
         self.display_current_image()
 
 

@@ -153,12 +153,14 @@ class Group:
             elif item.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
                 # print(f"Found image: {item_path}")
                 if item.lower().endswith('.gif'):
-                    with Image.open(item_path) as gif:\
-                    # Perhaps set default duration lower ----------------------------------------------------------------
+                    with Image.open(item_path) as gif:
+                        # Perhaps set default duration lower
                         animation_speed = gif.info.get('duration', 100)  # Use a default value if 'duration' is missing
                     self.add_image(GifImage(item_path, item, group=self.name, animation_speed=animation_speed))
                 else:
                     self.add_image(SmartImage(item_path, item, group=self.name))
+
+
 
     def __repr__(self):
         # String representation of the Group object for debugging.
@@ -203,10 +205,13 @@ class Collection:
 
 #TODO Gif class (inherits from smart image)
 
+
+
 class GifImage(SmartImage):
     def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, animation_speed=100):
         super().__init__(path, name, group, zoom_level, panx, pany, series, index, offset, weight, tags, favorite)
         self.frames = []
+        self.durations = []
         self.current_frame = 0
         self.animation = None
         self.animation_speed = animation_speed  # Speed in ms
@@ -220,10 +225,15 @@ class GifImage(SmartImage):
                 for i, frame in enumerate(ImageSequence.Iterator(img)):
                     frame_copy = frame.copy()
                     self.frames.append(frame_copy)
-                    print(f"Loaded frame {i}")
+                    duration = img.info.get('duration', 100)  # Default duration if not specified
+                    self.durations.append(duration)
+                    print(f"Loaded frame {i} with duration {duration}")
             print(f"Total frames loaded: {len(self.frames)}")
         except Exception as e:
             print(f"Error loading GIF: {e}")
+
+    def get_next_frame_duration(self):
+        return self.durations[self.current_frame]
 
     def play(self):
         self.is_animated = True
@@ -236,7 +246,6 @@ class GifImage(SmartImage):
 
     def resume(self):
         self.is_paused = False
-
 
     def set_animation_speed(self, speed):
         self.animation_speed = speed
