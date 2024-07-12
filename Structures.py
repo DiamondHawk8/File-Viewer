@@ -250,6 +250,23 @@ class GifImage(SmartImage):
     def set_animation_speed(self, speed):
         self.animation_speed = speed
 
+    def set_all_frame_durations(self, duration):
+        self.durations = [duration] * len(self.frames)
+        print(f"All frame durations set to {duration} ms")
+
+    def increase_frame_durations(self, increment):
+        self.durations = [d + increment for d in self.frame_durations]
+        print(f"Increased all frame durations by {increment} ms")
+
+    def decrease_frame_durations(self, decrement):
+        self.durations = [max(10, d - decrement) for d in self.frame_durations]  # Ensure duration is at least 10 ms
+        print(f"Decreased all frame durations by {decrement} ms")
+
+    def get_next_frame_duration(self):
+        duration = self.durations[self.current_frame]
+        print(f"Next frame duration: {duration} ms for frame {self.current_frame}")
+        return duration
+
     def resize_frames(self):
         # Resize all frames according to the current zoom level
         for i in range(len(self.frames)):

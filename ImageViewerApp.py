@@ -337,11 +337,13 @@ class ImageViewerApp:
                 
                 # Schedule the next frame update with the correct duration
                 next_duration = self.current_gif.get_next_frame_duration()
+                print(f"Scheduling next frame update in {next_duration} ms")
                 self.animation = self.root.after(next_duration, self.update_gif_frame)
 
         
     def decrease_animation_speed(self, event = None):
-        self.current_gif.animation_speed = self.current_gif.animation_speed + 100
+        print("AAA")
+        self.current_gif.decrease_frame_duration(100)
 
     def next_image(self, event = None):
         
