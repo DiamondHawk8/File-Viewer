@@ -250,6 +250,25 @@ class GifImage(SmartImage):
     def set_animation_speed(self, speed):
         self.animation_speed = speed
 
+    def resize_frames(self):
+        # Resize all frames according to the current zoom level
+        for i in range(len(self.frames)):
+            frame = self.frames[i]
+            zoom_level = self.zoom_level
+
+            screen_ratio = self.screen_width / self.screen_height
+            image_ratio = frame.width / frame.height
+
+            if image_ratio > screen_ratio:
+                scale_factor = self.screen_width / frame.width
+            else:
+                scale_factor = self.screen_height / frame.height
+
+            new_width = int(frame.width * scale_factor * zoom_level)
+            new_height = int(frame.height * scale_factor * zoom_level)
+
+            self.frames[i] = frame.resize((new_width, new_height), Image.LANCZOS)
+
 # Testing 
 def get_duration(path):
     with Image.open(path) as gif:

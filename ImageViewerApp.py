@@ -11,8 +11,7 @@ import threading
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
 
-# TODO preprocess gifs so they dont cycle frames at inconsistent speeds
-# TODO fix zooming with gif
+
 # TODO make closing tabs comptable with gif multithreading
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
@@ -533,21 +532,29 @@ class ImageViewerApp:
     def pan_left(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.panx -= 5
+        if isinstance(current_image, GifImage):
+            current_image.resize_frames()
         self.display_current_image()
 
     def pan_right(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.panx += 5
+        if isinstance(current_image, GifImage):
+            current_image.resize_frames()
         self.display_current_image()
 
     def pan_up(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.pany -= 5
+        if isinstance(current_image, GifImage):
+            current_image.resize_frames()
         self.display_current_image()
 
     def pan_down(self, event=None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.pany += 5
+        if isinstance(current_image, GifImage):
+            current_image.resize_frames()
         self.display_current_image()
 
     def apply_zoom_pan_to_group(self, zoom_level, panx, pany, default, preconfig):
