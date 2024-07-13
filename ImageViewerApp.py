@@ -753,6 +753,10 @@ class ImageViewerApp:
 # ----------------UI Methods----------------
 
     def on_tab_change(self, event):
+        
+        with self.lock:
+            if self.current_gif and self.current_gif.is_animated:
+                self.current_gif.stop()
         # Notebook/tab change method
         selected_tab = event.widget.tab(event.widget.select(), "text")
 
