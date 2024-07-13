@@ -33,6 +33,10 @@ class UIManager:
         # Create group menu (dont ask how this widget works, its a mess)
         self.initialize_group_frame()
 
+        # Create gif duration frame
+        self.initialize_gif_duration_frame()
+
+
         self.layout_widgets()
 
         # Boolean attributes for toggleable UI elements
@@ -44,6 +48,7 @@ class UIManager:
         self.name_visible = False
         self.zoom_pan_visible = False
         self.group_visible = False
+        self.gif_duration_visible = False
 
     
 
@@ -231,6 +236,14 @@ class UIManager:
         # Button to save group details
         self.save_group_button = tk.Button(self.group_frame, text="Save Group Details", command=self.save_group_details)
 
+    def initialize_gif_duration_frame(self):
+        self.gif_duration_frame = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
+
+        self.current_frame_label = tk.Label(self.gif_duration_frame, text="Current Frame Durations (ms):", bg="gainsboro")
+        self.current_frame_value = tk.Label(self.gif_duration_frame, text="", bg="gainsboro")
+        self.new_duration_label = tk.Label(self.gif_duration_frame, text="Set New Duration (ms):", bg="gainsboro")
+        self.new_duration_entry = tk.Entry(self.gif_duration_frame, width=10)
+        self.set_duration_button = tk.Button(self.gif_duration_frame, text="Set Duration", command=self.set_gif_frame_duration)
 
 
     def layout_widgets(self):
@@ -316,6 +329,13 @@ class UIManager:
         self.label_group_current_weight.grid(row=5, column=0, sticky=tk.W)
         self.label_group_current_weight_value.grid(row=5, column=1, sticky=tk.W)
 
+        # Layout the widgets in the GIF duration frame
+        self.current_frame_label.pack(side=tk.LEFT, padx=5, pady=5)
+        self.current_frame_value.pack(side=tk.LEFT, padx=5, pady=5)
+        self.new_duration_label.pack(side=tk.LEFT, padx=5, pady=5)
+        self.new_duration_entry.pack(side=tk.LEFT, padx=5, pady=5)
+        self.set_duration_button.pack(side=tk.LEFT, padx=5, pady=5)
+
 
 
 
@@ -361,7 +381,6 @@ class UIManager:
 
         # Call the update callback to notify ImageViewerApp
         self.update_callback()
-
 
     def lock_keybind(self, event):
             return
@@ -427,7 +446,13 @@ class UIManager:
             self.group_frame.place(anchor=tk.NE, relx=0.95, rely=0.15)
         self.group_visible = not self.group_visible
 
-
+    def toggle_gif_duration_frame(self, event=None):
+        if self.gif_duration_visible:
+            self.gif_duration_frame.place_forget()
+        else:
+            self.gif_duration_frame.place(anchor=tk.NE, relx=0.95, rely=0.15)
+        self.gif_duration_visible = not self.gif_duration_visible
+        self.root.focus_set()
 
 
 # Other
@@ -505,7 +530,6 @@ class UIManager:
         else:
             self.update_callback("apply_current", zoom_level=zoom_level, panx=panx, pany=pany, default=default, preconfig=preconfig)
 
-
     def update_group_details(self, group):
         current_group = group
         self.group_name_var.set(current_group.name)
@@ -517,3 +541,14 @@ class UIManager:
         group_weight = float(self.group_weight_var.get())
         group_favorite = self.group_favorite_var.get()
         self.update_callback("update_group", group_weight=group_weight, group_favorite=group_favorite)
+
+    def update_gif_frame_durations(self, durations):
+        self.current_frame_value.config(text=", ".join(map(str, durations)))
+
+    def set_gif_frame_duration(self):
+        duration_text = self.new_duration_entry.get()
+        try:
+            new_duration = int(duration_text)
+            self.update_callback("set_gif_duration", new_duration=new_duration)
+        except ValueError:
+            print("Invalid duration format. Please enter an integer.")

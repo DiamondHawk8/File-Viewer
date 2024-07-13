@@ -255,11 +255,11 @@ class GifImage(SmartImage):
         print(f"All frame durations set to {duration} ms")
 
     def increase_frame_durations(self, increment):
-        self.durations = [d + increment for d in self.frame_durations]
+        self.durations = [d + increment for d in self.durations]
         print(f"Increased all frame durations by {increment} ms")
 
     def decrease_frame_durations(self, decrement):
-        self.durations = [max(10, d - decrement) for d in self.frame_durations]  # Ensure duration is at least 10 ms
+        self.durations = [max(10, d - decrement) for d in self.durations]  # Ensure duration is at least 10 ms
         print(f"Decreased all frame durations by {decrement} ms")
 
     def get_next_frame_duration(self):

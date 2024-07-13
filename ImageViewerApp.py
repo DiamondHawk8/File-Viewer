@@ -78,7 +78,6 @@ class ImageViewerApp:
 
         self.current_gif = None
 
-
     def load_collections(self, folder_path=None, *collections):
         if folder_path:
             # Create a new Collection from the folder path and add it to the list
@@ -113,7 +112,7 @@ class ImageViewerApp:
     def layout_widgets(self):
         self.image_label.pack()
 
-    def update_widgets(self, mode=None, tags=None, start=None, end=None, zoom_level=None, panx=None, pany=None, default=None, preconfig=None, group_weight=None, group_favorite=None):
+    def update_widgets(self, mode=None, tags=None, start=None, end=None, zoom_level=None, panx=None, pany=None, default=None, preconfig=None, group_weight=None, group_favorite=None, new_duration = None):
         print("update_widgets called")
         if mode == "add_group":
             self.add_tags_to_group(tags)
@@ -135,6 +134,10 @@ class ImageViewerApp:
             self.apply_zoom_pan_to_current(zoom_level, panx, pany, default, preconfig)
         elif mode == "update_group":
             self.update_group_details(group_weight, group_favorite)
+        elif mode == "set_gif_duration":
+            if self.current_gif:
+                self.current_gif.set_all_frame_durations(new_duration)
+                self.ui_manager.update_gif_frame_durations(self.current_gif.durations)
         
         
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
@@ -187,6 +190,7 @@ class ImageViewerApp:
         self.root.bind('<Control-Key-6>', self.toggle_keybinds_and_tag_menu)
         self.root.bind('<Control-Key-7>', self.toggle_keybinds_and_zoom_pan_menu)
         self.root.bind('<Control-Key-8>', self.ui_manager.toggle_group)
+        self.root.bind('<Control-Key-9>', self.toggle_gif_duration_menu_and_keybinds)
    
      
         # Notebook/tab binding
@@ -290,7 +294,6 @@ class ImageViewerApp:
             frame = self.current_gif.frames[self.current_gif.current_frame]
             image = ImageTk.PhotoImage(frame)
 
-            print(f"TESTING, attempting to display frame: {self.current_gif.current_frame}")
 
             # Retrieve zoom level, panx, and pany from the GifImage object
             zoom_level = self.current_gif.zoom_level
@@ -337,13 +340,11 @@ class ImageViewerApp:
                 
                 # Schedule the next frame update with the correct duration
                 next_duration = self.current_gif.get_next_frame_duration()
-                print(f"Scheduling next frame update in {next_duration} ms")
                 self.animation = self.root.after(next_duration, self.update_gif_frame)
 
-        
     def decrease_animation_speed(self, event = None):
         print("AAA")
-        self.current_gif.decrease_frame_duration(100)
+        self.current_gif.increase_frame_durations(100)
 
     def next_image(self, event = None):
         
@@ -757,6 +758,19 @@ class ImageViewerApp:
     def toggle_keybinds_and_zoom_pan_menu(self, event=None):
         self.toggle_keybinds()
         self.ui_manager.toggle_zoom_pan()
+
+    def toggle_gif_duration_menu_and_keybinds(self, event=None):
+        self.toggle_keybinds()
+        self.toggle_gif_duration_menu()
+
+    def toggle_gif_duration_menu(self):
+        current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
+        if isinstance(current_image, GifImage):
+            self.ui_manager.toggle_gif_duration_frame()
+        else:
+            print("Current image is not a GIF.")
+            self.toggle_keybinds()
+
 
     def toggle_keybinds(self):
         if self.typing:
