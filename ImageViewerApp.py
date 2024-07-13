@@ -10,10 +10,9 @@ import threading
 
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-# TODO fix switching via clicking on notebook tabs
-# TODO gif structure
+
 # TODO revise group structure to be able to take in a list of groups that it should open
-# TODO Preloading if program is slow
+# TODO Allow saving of data
 
 class ImageViewerApp:
     def __init__(self, root):
@@ -753,7 +752,7 @@ class ImageViewerApp:
 # ----------------UI Methods----------------
 
     def on_tab_change(self, event):
-        
+
         with self.lock:
             if self.current_gif and self.current_gif.is_animated:
                 self.current_gif.stop()
