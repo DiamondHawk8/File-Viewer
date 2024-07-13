@@ -73,9 +73,15 @@ class UIManager:
        self.notebook.forget(index)
 
     def add_notebook_tab(self, name, index):
+    
         tab = tk.Frame(self.notebook)
-        self.notebook.insert(index, tab, text=name)
-
+        tabs_count = len(self.notebook.tabs())
+        
+        if index >= tabs_count:
+            self.notebook.add(tab, text=name)
+        else:
+            self.notebook.insert(index, tab, text=name)
+        
     def initialize_detail_frames(self):
         self.image_details = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)
         self.image_details_advanced = tk.Frame(self.root, bg="gainsboro", relief=tk.GROOVE, padx=10, pady=10)

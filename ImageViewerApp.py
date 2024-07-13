@@ -10,9 +10,7 @@ import threading
 
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-
-
-# TODO make closing tabs comptable with gif multithreading
+# TODO fix switching via clicking on notebook tabs
 # TODO gif structure
 # TODO revise group structure to be able to take in a list of groups that it should open
 # TODO Preloading if program is slow
@@ -113,7 +111,6 @@ class ImageViewerApp:
         self.image_label.pack()
 
     def update_widgets(self, mode=None, tags=None, start=None, end=None, zoom_level=None, panx=None, pany=None, default=None, preconfig=None, group_weight=None, group_favorite=None, new_duration = None):
-        print("update_widgets called")
         if mode == "add_group":
             self.add_tags_to_group(tags)
         elif mode == "add_range":
@@ -220,7 +217,6 @@ class ImageViewerApp:
 # ----------------Display Methods----------------
 
     def display_image(self, smart_image):
-        print("TESTING display image called")
         # Open the image using the path from the SmartImage object
         image = Image.open(smart_image.path)
 
@@ -263,17 +259,28 @@ class ImageViewerApp:
         self.image_label.image = img
 
     def display_current_image(self, event=None):
-        print("TESTING display current image called")
+        print(f"Attempting to display current image in collection index {self.current_collection_index}, group index {self.current_group_index}, image index {self.current_image_index}")
+
         current_collection = self.collections[self.current_collection_index]
         current_group = current_collection.groups[self.current_group_index]
 
+        print(f"Current group '{current_group.name}' has {len(current_group.images)} images")
+
         if self.current_image_index < len(current_group.images):
             smart_image = current_group.images[self.current_image_index]
+            print(f"Displaying image '{smart_image.name}' from group '{current_group.name}'")
+
             if isinstance(smart_image, GifImage):
+                print("Detected GIF image, calling display_gif method")
                 self.display_gif(smart_image)
             else:
+                print("Detected regular image, calling display_image method")
                 self.display_image(smart_image)
+            
             self.ui_manager.update_image_details(smart_image)
+            print(f"Updated UI details for image '{smart_image.name}'")
+        else:
+            print(f"Image index {self.current_image_index} is out of range for group '{current_group.name}' with {len(current_group.images)} images")
 
     def display_gif(self, gif_image):
         """Play the GIF image."""
@@ -347,8 +354,6 @@ class ImageViewerApp:
         self.current_gif.increase_frame_durations(100)
 
     def next_image(self, event = None):
-        
-        print(f"NEXT IMAGE CALLED, {event}")
         
         with self.lock:
             # Prevent any current gif from cycling
@@ -457,63 +462,78 @@ class ImageViewerApp:
     def toggle_wrap(self, event = None):
         self.image_wrap = not self.image_wrap
     
-    def close_group(self, event = None):
+
+    def close_group(self, event=None):
         # removes the current tab if it is able to
+        with self.lock:
+            current_collection = self.collections[self.current_collection_index]
+            if self.current_gif and self.current_gif.is_animated:
+                self.current_gif.stop()
 
-        current_collection = self.collections[self.current_collection_index]
+            if len(current_collection.groups) > 1:
+                current_group = current_collection.groups[self.current_group_index]
 
-        if len(current_collection.groups) > 1:
-            
-            current_group = current_collection.groups[self.current_group_index]
+                # Store the current index of the group being swapped from
+                self.stored_indices.update({current_group.name: self.current_image_index})
+                print(f"Stored index for group '{current_group.name}': {self.current_image_index}")
 
-            # Store the current index of the group being swapped from
-            self.stored_indices.update({current_group.name : self.current_image_index})
+                # Store the current group and its index
+                self.closed_groups.append((current_group, self.current_group_index))
+                print(f"Closed group '{current_group.name}' at index {self.current_group_index}")
 
-            # Store the current group and its index
-            self.closed_groups.append((current_group, self.current_group_index))
+                # Remove from collections list and notebook
+                self.collections[self.current_collection_index].groups.remove(current_group)
+                self.ui_manager.remove_notebook_tab(self.current_group_index)
+                print(f"Removed group '{current_group.name}' from collection")
 
-            # Remove from collections list and notebook
-            self.collections[self.current_collection_index].groups.remove(current_group)
-            self.ui_manager.remove_notebook_tab(self.current_group_index)
+                # Decide whether to increment or decrement current group
+                if self.current_group_index > 0:
+                    self.current_group_index -= 1
+                else:
+                    self.current_group_index += 1
 
-            # Decide whether to increment or decrement current group
-            if self.current_group_index > 0:
-                self.current_group_index -= 1
-            else:
-                self.current_group_index +=1
-            
                 # Check to see if the new group has a stored index, and if so, set current index to such
-            if current_collection.groups[self.current_group_index].name in self.stored_indices:
-                self.current_image_index = self.stored_indices[current_collection.groups[self.current_group_index].name]
-            else:
-                self.current_image_index = 0
-
-            self.update_widgets()
-            self.display_current_image()
-
-    def reopen_group(self, event = None):
-
-        current_collection = self.collections[self.current_collection_index]
-
-        info = self.closed_groups.pop()
-        index = info[1]
-        group = info[0]
-
-        # Insert the group at its previous index
-        self.collections[self.current_collection_index].groups.insert(index, group)
-
-        # Recreate the notebook tab
-        self.ui_manager.add_notebook_tab(group.name, index)
+                if current_collection.groups[self.current_group_index].name in self.stored_indices:
+                    self.current_image_index = self.stored_indices[current_collection.groups[self.current_group_index].name]
+                    print(f"Restored index for group '{current_collection.groups[self.current_group_index].name}': {self.current_image_index}")
+                else:
+                    self.current_image_index = 0
+                    print(f"Set current image index to 0 for group '{current_collection.groups[self.current_group_index].name}'")
 
         self.update_widgets()
+        self.display_current_image()
+        print(f"Closed group and updated display to group '{current_collection.groups[self.current_group_index].name}'")
 
-        if group.name in self.stored_indices:
-            self.current_image_index = self.stored_indices[group.name]
-        else:
-            self.current_image_index = 0
-        self.current_group_index = index
+    def reopen_group(self, event=None):
+        with self.lock:
+            if self.current_gif and self.current_gif.is_animated:
+                self.current_gif.stop()
+
+            info = self.closed_groups.pop()
+            index = info[1]
+            group = info[0]
+            print(f"Reopening group '{group.name}' at index {index}")
+
+            # Insert the group at its previous index
+            self.collections[self.current_collection_index].groups.insert(index, group)
+            print(f"Inserted group '{group.name}' back into collection at index {index}")
+
+            # Recreate the notebook tab
+            self.ui_manager.add_notebook_tab(group.name, index)
+            print(f"Recreated notebook tab for group '{group.name}' at index {index}")
+
+            self.update_widgets()
+
+            if group.name in self.stored_indices:
+                self.current_image_index = self.stored_indices[group.name]
+                print(f"Restored index for group '{group.name}': {self.current_image_index}")
+            else:
+                self.current_image_index = 0
+                print(f"Set current image index to 0 for group '{group.name}'")
+            self.current_group_index = index
 
         self.display_current_image()
+        print(f"Reopened group '{group.name}' and updated display")
 
 # ----------------Transformation Methods----------------
 
@@ -770,7 +790,6 @@ class ImageViewerApp:
         else:
             print("Current image is not a GIF.")
             self.toggle_keybinds()
-
 
     def toggle_keybinds(self):
         if self.typing:
