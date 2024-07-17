@@ -227,8 +227,10 @@ class GifImage(SmartImage):
                     self.frames.append(frame_copy)
                     duration = img.info.get('duration', 100)  # Default duration if not specified
                     self.durations.append(duration)
-                    print(f"Loaded frame {i} with duration {duration}")
-            print(f"Total frames loaded: {len(self.frames)}")
+                    # TESTING Statement
+                    # print(f"Loaded frame {i} with duration {duration}")
+            # TESTING
+            # print(f"Total frames loaded: {len(self.frames)}")
         except Exception as e:
             print(f"Error loading GIF: {e}")
 

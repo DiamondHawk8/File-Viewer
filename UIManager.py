@@ -50,6 +50,7 @@ class UIManager:
         self.group_visible = False
         self.gif_duration_visible = False
 
+
     
 
     def create_notebook(self, groups):
@@ -65,6 +66,10 @@ class UIManager:
 
     def update_notebook(self, current_group_name):
         for i, tab_id in enumerate(self.notebook.tabs()):
+
+            # TESTING
+            print(self.notebook.tab(tab_id, "text") == current_group_name)
+
             if self.notebook.tab(tab_id, "text") == current_group_name:
                 self.notebook.select(i)
                 break

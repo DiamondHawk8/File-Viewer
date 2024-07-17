@@ -15,7 +15,7 @@ import threading
 # TODO Allow saving of data
 
 class ImageViewerApp:
-    def __init__(self, root):
+    def __init__(self, root, update_widgets_callback):
         
         self.root = root
         
@@ -27,6 +27,9 @@ class ImageViewerApp:
 
         # Attribute to keep track of groups that were closed
         self.closed_groups = []
+
+        # Callback for use with main class:
+        self.update_widgets_callback = update_widgets_callback
 
         # Configurations to make it fullscreen and the background grey
         root.attributes('-fullscreen', True)
@@ -53,7 +56,10 @@ class ImageViewerApp:
         # Bind keys to respective functions
         self.initialize_keybinds()
 
+        # TESTING load specific collection
         self.load_collections("ZTakeoutTest\Takeout\Drive")
+
+
         self.trim_groups()
         # Create notebook with groups from current collection
         if self.collections:
@@ -138,6 +144,9 @@ class ImageViewerApp:
         
         current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
         current_group_name = current_group.name
+
+        # TESTING
+        print(f"Updating notebook with {current_group_name}")
         self.ui_manager.update_notebook(current_group_name)
         self.ui_manager.update_group_details(self.collections[self.current_collection_index].groups[self.current_group_index])
         
@@ -425,6 +434,9 @@ class ImageViewerApp:
         else:
             self.current_image_index = 0
 
+        # Update Notebook
+        self.update_widgets
+
         # Display image from next group
         self.display_current_image()
             
@@ -455,13 +467,16 @@ class ImageViewerApp:
         else:
             self.current_image_index = 0
 
+
+        # Update Notebook
+        self.update_widgets
+
         # Display image from next group
         self.display_current_image()
     
     def toggle_wrap(self, event = None):
         self.image_wrap = not self.image_wrap
     
-
     def close_group(self, event=None):
         # removes the current tab if it is able to
         with self.lock:
@@ -938,16 +953,6 @@ def print_child_groups(children, level=1):
 
 
     
-
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = ImageViewerApp(root)
-    root.mainloop()
-    print("-----------------------------------")
-    print(Structures.get_duration(r"C:\Users\darks\VSCODE\File-Viewer\ZTakeoutTest\Takeout\Drive\Gifs\200w (1).gif"))
-
 
 
 
