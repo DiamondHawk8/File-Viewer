@@ -1,7 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog
-from tkinter import ttk
+from tkinter import filedialog, simpledialog, ttk
 import pickle
 from ImageViewerApp import ImageViewerApp
 from Structures import SmartImage
@@ -62,9 +61,15 @@ class MainApp:
         self.save_button.pack(padx=10, pady=5)
         self.load_button = tk.Button(self.frame, text="Load Data", command=self.load_all_image_data)
         self.load_button.pack(padx=10, pady=5)
+
+        # Add saving and loading sessions
+        self.save_session_button = tk.Button(self.frame, text="Save Session", command=self.save_session)
+        self.save_session_button.pack(padx=10, pady=5)
+        self.load_session_button = tk.Button(self.frame, text="Load Session", command=self.load_session)
+        self.load_session_button.pack(padx=10, pady=5)
         
-            # Checkbox for auto loading data
-        self.auto_load_var = tk.BooleanVar()
+        # Checkbox for auto loading data
+        self.auto_load_var = tk.BooleanVar(value=True)
         self.auto_load_checkbox = tk.Checkbutton(self.frame, text="Automatically Load Data", variable=self.auto_load_var)
         self.auto_load_checkbox.pack(padx=10, pady=5)
 
@@ -168,6 +173,38 @@ class MainApp:
         if not os.path.exists(path):
             os.makedirs(path)
 
+
+    def save_session(self):
+        session_name = simpledialog.askstring("Save Session", "Enter a name for the session:")
+        if session_name:
+            use_combined = simpledialog.askstring("Save Session", "Use combined collections? (yes/no):")
+            if use_combined.lower() == "yes":
+                collections_to_save = [self.image_viewer_app.collections[0]]  # Combined collection
+            else:
+                collections_to_save = self.image_viewer_app.original_collections  # Original collections
+            
+            session_dir = os.path.join("sessions")
+            if not os.path.exists(session_dir):
+                os.makedirs(session_dir)
+            filename = os.path.join(session_dir, f"{session_name}.pkl")
+            with open(filename, "wb") as f:
+                pickle.dump(collections_to_save, f)
+            print(f"Session saved as {filename}")
+
+    def load_session(self):
+        filename = filedialog.askopenfilename(title="Select Session File", initialdir="sessions", filetypes=[("Pickle Files", "*.pkl")])
+        if filename:
+            with open(filename, "rb") as f:
+                loaded_collections = pickle.load(f)
+            
+            self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
+            self.image_viewer_app.collections = loaded_collections
+            self.image_viewer_app.combine_collections()
+            self.display_collections_in_treeview()
+            self.hide_window()  # Automatically hide window
+            self.root.deiconify()  # Show the main window now that collections have been loaded
+            print(f"Session loaded from {filename}")
+        
 if __name__ == "__main__":
     root = tk.Tk()
     app = MainApp(root)
