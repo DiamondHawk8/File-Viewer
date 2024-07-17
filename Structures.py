@@ -186,9 +186,14 @@ class Collection:
         if isinstance(group, Group):
             self.groups.append(group)
 
-    def load_groups(self):
+    def load_groups(self, whitelist=None, blacklist=None):
         """Load groups from the base folder path."""
         for folder_name in os.listdir(self.base_folder_path):
+            if whitelist and folder_name not in whitelist:
+                continue
+            if blacklist and folder_name in blacklist:
+                continue
+
             folder_path = os.path.join(self.base_folder_path, folder_name)
             if os.path.isdir(folder_path):
                 # Create a new Group for each subfolder in the base folder
@@ -201,9 +206,6 @@ class Collection:
         """String representation of the Collection object for debugging."""
         return (f"Collection(name={self.name}, base_folder_path={self.base_folder_path}, weight={self.weight}, "
                 f"favorite={self.favorite}, groups={len(self.groups)})")
-
-
-#TODO Gif class (inherits from smart image)
 
 
 

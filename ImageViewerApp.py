@@ -25,6 +25,11 @@ class ImageViewerApp:
         # Attribute to represent a list of collections
         self.collections = []
 
+        # Indexing attributes
+        self.current_collection_index = 0
+        self.current_group_index = 0
+        self.current_image_index = 0
+
         # Attribute to keep track of groups that were closed
         self.closed_groups = []
 
@@ -57,13 +62,10 @@ class ImageViewerApp:
         self.initialize_keybinds()
 
         # TESTING load specific collection
-        self.load_collections("ZTakeoutTest\Takeout\Drive")
+        # self.load_collections("ZTakeoutTest\Takeout\Drive")
 
-
-        self.trim_groups()
-        # Create notebook with groups from current collection
-        if self.collections:
-            self.ui_manager.create_notebook(self.collections[self.current_collection_index].groups) 
+        # Notebook created boolean
+        self.notebook = False
 
         # Boolean value for whether or not warning/confirmation dialogs should show
         self.show_dialogs = True
@@ -81,30 +83,17 @@ class ImageViewerApp:
 
         self.current_gif = None
 
-    def load_collections(self, folder_path=None, *collections):
+
+
+    def load_collections(self, folder_path=None, whitelist=None, blacklist=None):
         if folder_path:
             # Create a new Collection from the folder path and add it to the list
             new_collection = Collection(folder_path, "New Collection")
-            new_collection.load_groups()
+            new_collection.load_groups(whitelist, blacklist)
             self.collections.append(new_collection)
-            
 
-        for collection in collections:
-            # Add existing Collection objects to the list
-            if isinstance(collection, Collection):
-                self.collections.append(collection)
-
-        # Set initial indices for navigation if colletions has any Collection objects
+        # Set initial indices for navigation if collections has any Collection objects
         if self.collections:
-            self.current_collection_index = 0
-            self.current_group_index = 0
-            self.current_image_index = 0
-
-            
-            """
-            When switching groups, it is neccesary to maintain the index of the image the user was looking at for that particular group.
-            Therefore, the stored_indicies attribute maintains a dictionary of the group path to its respective index
-            """
             self.stored_indices = {}
             self.display_current_image()
 
@@ -141,14 +130,23 @@ class ImageViewerApp:
                 self.current_gif.set_all_frame_durations(new_duration)
                 self.ui_manager.update_gif_frame_durations(self.current_gif.durations)
         
-        
-        current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
-        current_group_name = current_group.name
 
-        # TESTING
-        print(f"Updating notebook with {current_group_name}")
-        self.ui_manager.update_notebook(current_group_name)
-        self.ui_manager.update_group_details(self.collections[self.current_collection_index].groups[self.current_group_index])
+        if not self.notebook and self.collections:
+
+            # Ensure that empty groups are not added to the list
+            self.trim_groups()
+
+            # Create the notebook if it hasnt been already
+            self.ui_manager.create_notebook(self.collections[self.current_collection_index].groups)
+
+            # Set created boolean to true so this code doesnt run again
+            self.notebook = True
+        if self.collections:
+            current_group = self.collections[self.current_collection_index].groups[self.current_group_index]
+            current_group_name = current_group.name
+
+            self.ui_manager.update_notebook(current_group_name)
+            self.ui_manager.update_group_details(self.collections[self.current_collection_index].groups[self.current_group_index])
         
     def initialize_keybinds(self):
 
@@ -206,6 +204,8 @@ class ImageViewerApp:
         self.root.bind('<Control-p>', self.print_group_weight)
         self.root.bind('<Control-m>', self.display_current_image) 
         self.root.bind('<Control-x>', self.decrease_animation_speed) 
+        self.root.bind('<Control-f>', self.update_widgets) 
+
 
         self.root.bind('<space>', self.next_frame)
 

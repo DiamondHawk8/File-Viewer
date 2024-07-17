@@ -65,27 +65,19 @@ class MainApp:
     def load_folder(self):
         folder_path = filedialog.askdirectory(title="Select Folder")
         if folder_path:
+            whitelist = self.whitelist_entry.get().split(",")
+            blacklist = self.blacklist_entry.get().split(",")
+
+            if whitelist:
+                whitelist = [item.strip() for item in whitelist if item.strip()]
+            if blacklist:
+                blacklist = [item.strip() for item in blacklist if item.strip()]
+
             self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
-            self.image_viewer_app.load_collections(folder_path)
-            self.apply_whitelist_blacklist()
+            self.image_viewer_app.load_collections(folder_path, whitelist, blacklist)
             self.display_collections_in_treeview()
             self.dialog.withdraw()  # Hide the dialog after loading the folder
             self.root.deiconify()   # Show the main window
-
-    def apply_whitelist_blacklist(self):
-        whitelist = self.whitelist_entry.get().split(",")
-        blacklist = self.blacklist_entry.get().split(",")
-
-        if whitelist:
-            whitelist = [item.strip() for item in whitelist if item.strip()]
-        if blacklist:
-            blacklist = [item.strip() for item in blacklist if item.strip()]
-
-        if self.image_viewer_app:
-            self.image_viewer_app.collections = [
-                collection for collection in self.image_viewer_app.collections
-                if (not whitelist or collection.name in whitelist) and collection.name not in blacklist
-            ]
 
     def display_collections_in_treeview(self):
         self.tree.delete(*self.tree.get_children())
@@ -102,11 +94,8 @@ class MainApp:
             "name": image.name,
             "group": image.group,
             "default_zoom_level": image.default_zoom_level,
-            "zoom_level": image.zoom_level,
             "default_panx": image.default_panx,
             "default_pany": image.default_pany,
-            "panx": image.panx,
-            "pany": image.pany,
             "series": image.series,
             "index": image.index,
             "offset": image.offset,
