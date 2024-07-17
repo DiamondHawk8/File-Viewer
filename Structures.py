@@ -5,14 +5,14 @@ import os
 # Hierarchy: Collection > Group > SmartImage
 
 class SmartImage:
-    def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False):
+    def __init__(self, path, name, group, default_zoom_level=1.0, default_panx=0, default_pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, preconfig=[]):
         self.path = path
         self.name = name
         self.group = group  # Reference to the parent group
-        self.default_zoom_level = zoom_level
-        self.zoom_level = zoom_level
-        self.default_panx = panx
-        self.default_pany = pany
+        self.default_zoom_level = default_zoom_level
+        self.zoom_level = default_zoom_level
+        self.default_panx = default_panx
+        self.default_pany = default_pany
         self.panx = self.default_panx
         self.pany = self.default_pany
         
@@ -33,7 +33,7 @@ class SmartImage:
         self.favorite = favorite
 
         # A preconfig list that has the first 2 values represent panx and y, then the 3rd represent a zoom
-        self.preconfig = []
+        self.preconfig = preconfig
 
     def add_tag(self, tags):
         for tag in tags.split(','):

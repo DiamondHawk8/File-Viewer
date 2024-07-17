@@ -24,10 +24,14 @@ class MainApp:
         # Boolean for visibility
         self.hidden = False
 
+        # Bind hotkey to hide and show dialog
+        self.root.bind('<Control-h>', self.hide_window)
+
+
     def initialize_ui(self):
         self.dialog = tk.Toplevel(self.root)
         self.dialog.title("Load Folder")
-        self.dialog.geometry("400x300")
+        self.dialog.geometry("1000x600")
 
         self.frame = tk.Frame(self.dialog)
         self.frame.pack(fill=tk.BOTH, expand=True)
@@ -48,12 +52,18 @@ class MainApp:
         self.load_button = tk.Button(self.frame, text="Load Folder", command=self.load_folder)
         self.load_button.pack(padx=10, pady=10)
 
-        # Bind hotkey to hide and show dialog
-        self.root.bind('<Control-h>', self.hide_window)
+
 
         # Add a Treeview to display the folder structure
         self.tree = ttk.Treeview(self.frame)
         self.tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+         # Add save and load buttons
+        self.save_button = tk.Button(self.frame, text="Save Data", command=self.save_all_image_data)
+        self.save_button.pack(padx=10, pady=5)
+        self.load_button = tk.Button(self.frame, text="Load Data", command=self.load_all_image_data)
+        self.load_button.pack(padx=10, pady=5)
+        
 
     def hide_window(self, event=None):
         if not self.hidden:
@@ -120,6 +130,24 @@ class MainApp:
         # Placeholder method for update callback
         print("Widgets updated with args:", args, "and kwargs:", kwargs)
 
+
+    def save_all_image_data(self):
+        if self.image_viewer_app:
+            for collection in self.image_viewer_app.collections:
+                for group in collection.groups:
+                    for image in group.images:
+                        self.save_image_data(image)
+            print("All image data saved.")
+
+    def load_all_image_data(self):
+        if self.image_viewer_app:
+            for collection in self.image_viewer_app.collections:
+                for group in collection.groups:
+                    for image in group.images:
+                        loaded_image = self.load_image_data(image.path)
+                        if loaded_image:
+                            image.__dict__.update(loaded_image.__dict__)
+            print("All image data loaded.")
 
 if __name__ == "__main__":
     root = tk.Tk()
