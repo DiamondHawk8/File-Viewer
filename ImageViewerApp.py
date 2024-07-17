@@ -1,6 +1,6 @@
 import tkinter as tk
 import os
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from PIL import Image, ImageTk
 from Structures import SmartImage, Group, Collection, GifImage
 from UIManager import UIManager
@@ -842,6 +842,24 @@ class ImageViewerApp:
             self.root.bind('<s>', self.pan_down)
         self.typing = not self.typing
 
+    def refresh_notebook(self):
+        # Clear the current tabs
+        for tab in self.ui_manager.notebook.tabs():
+            self.ui_manager.notebook.forget(tab)
+
+        # Add new tabs for each group in the combined collection
+        current_collection = self.collections[0]  # Assuming collections are combined in the first index
+        for group in current_collection.groups:
+            frame = ttk.Frame(self.ui_manager.notebook)
+            self.ui_manager.notebook.add(frame, text=group.name)
+        
+        # Select the first tab
+        if current_collection.groups:
+            self.ui_manager.notebook.select(0)
+
+        # Update the UI manager's current group index
+        self.ui_manager.update_notebook(current_collection.groups[0].name)
+
 # ----------------Tag Management ----------------
 
 # All of these methods have a self.ui_manager.update_image_details(current_image) update statement so that if the details menu is open when tags are added it will properly reflect it
@@ -913,6 +931,12 @@ class ImageViewerApp:
 
             # Keep only the combined collection
             self.collections = [main_collection]
+
+            # Trim empty groups
+            self.trim_groups()
+
+            # Refresh notebook widget
+            self.refresh_notebook()
 
             # Update the treeview and UI
             self.update_widgets()
