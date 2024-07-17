@@ -1,18 +1,14 @@
 import tkinter as tk
-from tkinter import filedialog
+import os
 from tkinter import messagebox
-from PIL import Image, ImageTk, ImageSequence
+from PIL import Image, ImageTk
 from Structures import SmartImage, Group, Collection, GifImage
-import Structures
 from UIManager import UIManager
 import threading
 
 
 # Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
 
-
-# TODO revise group structure to be able to take in a list of groups that it should open
-# TODO Allow saving of data
 
 class ImageViewerApp:
     def __init__(self, root, update_widgets_callback):
@@ -85,12 +81,20 @@ class ImageViewerApp:
 
 
 
-    def load_collections(self, folder_path=None, whitelist=None, blacklist=None):
+    def load_collections(self, folder_path=None, whitelist=None, blacklist=None, *collections):
         if folder_path:
+            # Extract the folder name to use as the collection name
+            collection_name = os.path.basename(folder_path)
+            
             # Create a new Collection from the folder path and add it to the list
-            new_collection = Collection(folder_path, "New Collection")
-            new_collection.load_groups(whitelist, blacklist)
+            new_collection = Collection(folder_path, collection_name)
+            new_collection.load_groups(whitelist=whitelist, blacklist=blacklist)
             self.collections.append(new_collection)
+
+        for collection in collections:
+            # Add existing Collection objects to the list
+            if isinstance(collection, Collection):
+                self.collections.append(collection)
 
         # Set initial indices for navigation if collections has any Collection objects
         if self.collections:
@@ -267,26 +271,21 @@ class ImageViewerApp:
         self.image_label.image = img
 
     def display_current_image(self, event=None):
-        print(f"Attempting to display current image in collection index {self.current_collection_index}, group index {self.current_group_index}, image index {self.current_image_index}")
 
         current_collection = self.collections[self.current_collection_index]
         current_group = current_collection.groups[self.current_group_index]
 
-        print(f"Current group '{current_group.name}' has {len(current_group.images)} images")
 
         if self.current_image_index < len(current_group.images):
             smart_image = current_group.images[self.current_image_index]
-            print(f"Displaying image '{smart_image.name}' from group '{current_group.name}'")
 
             if isinstance(smart_image, GifImage):
-                print("Detected GIF image, calling display_gif method")
                 self.display_gif(smart_image)
             else:
                 print("Detected regular image, calling display_image method")
                 self.display_image(smart_image)
             
             self.ui_manager.update_image_details(smart_image)
-            print(f"Updated UI details for image '{smart_image.name}'")
         else:
             print(f"Image index {self.current_image_index} is out of range for group '{current_group.name}' with {len(current_group.images)} images")
 

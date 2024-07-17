@@ -189,18 +189,14 @@ class Collection:
     def load_groups(self, whitelist=None, blacklist=None):
         """Load groups from the base folder path."""
         for folder_name in os.listdir(self.base_folder_path):
-            if whitelist and folder_name not in whitelist:
-                continue
-            if blacklist and folder_name in blacklist:
-                continue
-
             folder_path = os.path.join(self.base_folder_path, folder_name)
             if os.path.isdir(folder_path):
-                # Create a new Group for each subfolder in the base folder
-                group = Group(folder_path, folder_name)
-                # Load images and subfolders for each group
-                group.load_images()  
-                self.add_group(group)
+                if (not whitelist or folder_name in whitelist) and (not blacklist or folder_name not in blacklist):
+                    # Create a new Group for each subfolder in the base folder
+                    group = Group(folder_path, folder_name)
+                    # Load images and subfolders for each group
+                    group.load_images()  
+                    self.add_group(group)
 
     def __repr__(self):
         """String representation of the Collection object for debugging."""

@@ -85,15 +85,17 @@ class MainApp:
             if blacklist:
                 blacklist = [item.strip() for item in blacklist if item.strip()]
 
-            self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
-            self.image_viewer_app.load_collections(folder_path, whitelist, blacklist)
-            self.display_collections_in_treeview()
-            self.hide_window() # Automatically hide window
-            self.root.deiconify()   # Show the main window now that groups have been loaded
+            if not self.image_viewer_app:
+                self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
 
-        # Automatically load data if the checkbox is checked
-        if self.auto_load_var.get():
-            self.load_all_image_data()
+            self.image_viewer_app.load_collections(folder_path, whitelist=whitelist, blacklist=blacklist)
+            self.display_collections_in_treeview()
+            self.hide_window()  # Automatically hide window
+            self.root.deiconify()  # Show the main window now that groups have been loaded
+
+            # Automatically load data if the checkbox is checked
+            if self.auto_load_var.get():
+                self.load_all_image_data()
 
     def display_collections_in_treeview(self):
         self.tree.delete(*self.tree.get_children())
