@@ -52,8 +52,6 @@ class MainApp:
         self.load_button = tk.Button(self.frame, text="Load Folder", command=self.load_folder)
         self.load_button.pack(padx=10, pady=10)
 
-
-
         # Add a Treeview to display the folder structure
         self.tree = ttk.Treeview(self.frame)
         self.tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -64,6 +62,10 @@ class MainApp:
         self.load_button = tk.Button(self.frame, text="Load Data", command=self.load_all_image_data)
         self.load_button.pack(padx=10, pady=5)
         
+            # Checkbox for auto loading data
+        self.auto_load_var = tk.BooleanVar()
+        self.auto_load_checkbox = tk.Checkbutton(self.frame, text="Automatically Load Data", variable=self.auto_load_var)
+        self.auto_load_checkbox.pack(padx=10, pady=5)
 
     def hide_window(self, event=None):
         if not self.hidden:
@@ -86,8 +88,12 @@ class MainApp:
             self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
             self.image_viewer_app.load_collections(folder_path, whitelist, blacklist)
             self.display_collections_in_treeview()
-            self.dialog.withdraw()  # Hide the dialog after loading the folder
-            self.root.deiconify()   # Show the main window
+            self.hide_window() # Automatically hide window
+            self.root.deiconify()   # Show the main window now that groups have been loaded
+
+        # Automatically load data if the checkbox is checked
+        if self.auto_load_var.get():
+            self.load_all_image_data()
 
     def display_collections_in_treeview(self):
         self.tree.delete(*self.tree.get_children())
@@ -114,12 +120,18 @@ class MainApp:
             "favorite": image.favorite,
             "preconfig": image.preconfig,
         }
-        filename = os.path.basename(image.path) + ".pkl"
+        # Create directory structure
+        base_dir = "data"
+        group_dir = os.path.join(base_dir, image.group)
+        self.ensure_directory(group_dir)
+        filename = os.path.join(group_dir, os.path.basename(image.path) + ".pkl")
         with open(filename, "wb") as f:
             pickle.dump(data, f)
 
-    def load_image_data(self, image_path):
-        filename = os.path.basename(image_path) + ".pkl"
+    def load_image_data(self, image_path, group):
+        base_dir = "data"
+        group_dir = os.path.join(base_dir, group)
+        filename = os.path.join(group_dir, os.path.basename(image_path) + ".pkl")
         if os.path.exists(filename):
             with open(filename, "rb") as f:
                 data = pickle.load(f)
@@ -144,10 +156,14 @@ class MainApp:
             for collection in self.image_viewer_app.collections:
                 for group in collection.groups:
                     for image in group.images:
-                        loaded_image = self.load_image_data(image.path)
+                        loaded_image = self.load_image_data(image.path, group.name)
                         if loaded_image:
                             image.__dict__.update(loaded_image.__dict__)
             print("All image data loaded.")
+        
+    def ensure_directory(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
 
 if __name__ == "__main__":
     root = tk.Tk()
