@@ -18,6 +18,7 @@ class MainApp:
         # Initialize attributes
         self.image_viewer_app = None
         self.collections = []
+        
 
         self.initialize_ui()
 

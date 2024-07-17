@@ -21,6 +21,9 @@ class ImageViewerApp:
         # Attribute to represent a list of collections
         self.collections = []
 
+        # Attribute for original list of collections for saving purposes:
+        self.original_collections = []
+
         # Indexing attributes
         self.current_collection_index = 0
         self.current_group_index = 0
@@ -199,9 +202,15 @@ class ImageViewerApp:
         self.root.bind('<Control-Key-8>', self.ui_manager.toggle_group)
         self.root.bind('<Control-Key-9>', self.toggle_gif_duration_menu_and_keybinds)
    
+        # Collection/Save Management
+        self.root.bind('<Control-Shift-C>', self.combine_collections)
+   
+
      
         # Notebook/tab binding
         self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
+
+
 
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
@@ -885,6 +894,38 @@ class ImageViewerApp:
         current_group.weight = group_weight
         current_group.favorite = group_favorite
         self.ui_manager.update_image_details(self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index], self.collections[self.current_collection_index].groups[self.current_group_index])
+
+
+# ----------------Collection/Save Management ----------------
+
+    def combine_collections(self, event = None):
+            if not self.collections:
+                return
+
+            # Store a copy of the original collections
+            self.original_collections = self.collections.copy()
+
+            # Combine all groups and images into the first collection
+            main_collection = self.collections[0]
+            for collection in self.collections[1:]:
+                for group in collection.groups:
+                    main_collection.add_group(group)
+
+            # Keep only the combined collection
+            self.collections = [main_collection]
+
+            # Update the treeview and UI
+            self.update_widgets()
+
+    def save_original_collections(self):
+        # Restore the original collections before saving
+        self.collections = self.original_collections.copy()
+
+        # Save data logic here
+        self.save_all_image_data()
+
+        # Recombine the collections after saving
+        self.combine_collections()
 
 # TESTING ONLY    --------------------------
     def create_test_collection(self):
