@@ -67,9 +67,6 @@ class UIManager:
     def update_notebook(self, current_group_name):
         for i, tab_id in enumerate(self.notebook.tabs()):
 
-            # TESTING
-            print(self.notebook.tab(tab_id, "text") == current_group_name)
-
             if self.notebook.tab(tab_id, "text") == current_group_name:
                 self.notebook.select(i)
                 break
@@ -526,13 +523,11 @@ class UIManager:
         default = self.default_var.get()
         preconfig = self.preconfig_var.get()
 
-        print(f"testing {self.apply_zoom_pan_to_group.get()}")
 
         if self.apply_zoom_pan_to_group.get():
             self.update_callback("apply_group", zoom_level=zoom_level, panx=panx, pany=pany, default=default, preconfig=preconfig)
         elif (self.zoom_pan_range_entry.get() != "" and self.zoom_pan_range_entry.get() != None):
             range_text = self.zoom_pan_range_entry.get()
-            print(f"TESTING {self.zoom_pan_range_entry.get()}")
             try:
                 start, end = map(int, range_text.split(','))
                 self.update_callback("apply_range", zoom_level=zoom_level, panx=panx, pany=pany, start=start, end=end, default=default, preconfig=preconfig)

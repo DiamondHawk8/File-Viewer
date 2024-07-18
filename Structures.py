@@ -96,32 +96,23 @@ class SmartImage:
     
 
 class Group:
-    def __init__(self, folder_path, name, weight=1.0, favorite=False, images=None, parent=None, children=None, depth=0):
+    def __init__(self, folder_path, name, weight=1.0, favorite=False, images=None, parent=None, depth=0):
         if images is None:
             images = []
-        if children is None:
-            children = []
         self.folder_path = folder_path
         self.name = name  
         self.weight = weight 
         self.favorite = favorite
-
-        # List of SmartImage objects at the top level
         self.images = images
-
-        # Parent group reference
         self.parent = parent
-
-        # List of child groups
-        self.children = children
-
-        # Depth of the group in the hierarchy (Integer)
+        self.children = []
         self.depth = depth
 
     def add_image(self, image):
         """Add a SmartImage to the group."""
         if isinstance(image, SmartImage):
             self.images.append(image)
+            print(f"Image added: {image.path}")
 
     def add_child_group(self, child_group):
         """Add a child group to the group."""
@@ -129,52 +120,41 @@ class Group:
             child_group.parent = self
             child_group.depth = self.depth + 1
             self.children.append(child_group)
+            print(f"Child group added: {child_group.folder_path}")
 
-    def load_images(self, folder_path=None, parent_folder=None):
+    def load_images(self, folder_path=None):
         """Recursively load images from the given folder path and nested subfolders."""
-
-        # Default to object path if one is not provided
         if folder_path is None:
             folder_path = self.folder_path
 
-        # Iterate through every item in the path
+        print(f"Loading images from {folder_path}")
         for item in os.listdir(folder_path):
-            # Joins the master path with the name of the current item, combining single path, which represents the full path to the item within the directory.
             item_path = os.path.join(folder_path, item)
-            # print(f"Processing item: {item_path}")
-            # If the item is a folder, create a child group and recurse into it
+            print(f"Checking item: {item_path}")
+
             if os.path.isdir(item_path):
-                # print(f"Found directory: {item_path}")
+                print(f"Found directory: {item_path}")
                 child_group = Group(item_path, item, parent=self, depth=self.depth + 1)
                 self.add_child_group(child_group)
                 child_group.load_images(item_path)
-
-            # If the item is an image, add it to the appropriate list
             elif item.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                # print(f"Found image: {item_path}")
+                print(f"Found image: {item_path}")
                 if item.lower().endswith('.gif'):
                     with Image.open(item_path) as gif:
-                        # Perhaps set default duration lower
                         animation_speed = gif.info.get('duration', 100)  # Use a default value if 'duration' is missing
                     self.add_image(GifImage(item_path, item, group=self.name, animation_speed=animation_speed))
                 else:
                     self.add_image(SmartImage(item_path, item, group=self.name))
 
-
-
     def __repr__(self):
-        # String representation of the Group object for debugging.
         return (f"Group(name={self.name}, folder_path={self.folder_path}, weight={self.weight}, favorite={self.favorite}, "
                 f"images={len(self.images)}, children={len(self.children)}, depth={self.depth})")
-
 
 
 class Collection:
     def __init__(self, base_folder_path, name, weight=1.0, favorite=False, groups=None):
         if groups is None:
             groups = []
-
-        # Path to the base folder of the collection
         self.base_folder_path = base_folder_path  
         self.name = name  
         self.weight = weight  
@@ -185,22 +165,41 @@ class Collection:
         """Add a Group to the collection."""
         if isinstance(group, Group):
             self.groups.append(group)
+            print(f"Group added: {group.name}")
 
     def load_groups(self, whitelist=None, blacklist=None):
         """Load groups from the base folder path."""
+        print(f"Loading groups from {self.base_folder_path}")
         for folder_name in os.listdir(self.base_folder_path):
             folder_path = os.path.join(self.base_folder_path, folder_name)
+            print(f"Checking folder: {folder_path}")
+
             if os.path.isdir(folder_path):
-                if (not whitelist or folder_name in whitelist) and (not blacklist or folder_name not in blacklist):
-                    # Create a new Group for each subfolder in the base folder
-                    group = Group(folder_path, folder_name)
-                    # Load images and subfolders for each group
-                    group.load_images()  
-                    self.add_group(group)
-                    print(f"Group added: {folder_name} with {len(group.images)} images")
+                print(f"Found directory: {folder_path}")
+
+                # Check whitelist and blacklist
+                if (whitelist and folder_name not in whitelist) or (blacklist and folder_name in blacklist):
+                    print(f"Skipping folder {folder_name} due to whitelist/blacklist")
+                    continue
+
+                # Create a new Group for each subfolder in the base folder
+                group = Group(folder_path, folder_name)
+                # Load images and subfolders for each group
+                group.load_images()  
+                self.add_group(group)
+                self.add_child_groups(group)
+                print(f"Group added: {folder_name} with {len(group.images)} images")
+
+            else:
+                print(f"Not a directory: {folder_path}")
+
+    def add_child_groups(self, group):
+        """Add child groups recursively."""
+        for child_group in group.children:
+            self.groups.append(child_group)
+            self.add_child_groups(child_group)
 
     def __repr__(self):
-        """String representation of the Collection object for debugging."""
         return (f"Collection(name={self.name}, base_folder_path={self.base_folder_path}, weight={self.weight}, "
                 f"favorite={self.favorite}, groups={len(self.groups)})")
 
