@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog, simpledialog, ttk
+from tkinter import filedialog, simpledialog, ttk, messagebox
 import pickle
 from ImageViewerApp import ImageViewerApp
 from Structures import SmartImage
@@ -36,42 +36,46 @@ class MainApp:
         self.frame = tk.Frame(self.dialog)
         self.frame.pack(fill=tk.BOTH, expand=True)
 
+        # Frame for entries and buttons
+        self.input_frame = tk.Frame(self.frame)
+        self.input_frame.pack(fill=tk.X, padx=10, pady=5)
+
         # Entry for whitelist
-        self.whitelist_label = tk.Label(self.frame, text="Whitelist (comma-separated):")
-        self.whitelist_label.pack(padx=10, pady=5)
-        self.whitelist_entry = tk.Entry(self.frame, width=50)
-        self.whitelist_entry.pack(padx=10, pady=5)
+        self.whitelist_label = tk.Label(self.input_frame, text="Whitelist (comma-separated):")
+        self.whitelist_label.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+        self.whitelist_entry = tk.Entry(self.input_frame, width=50)
+        self.whitelist_entry.grid(row=0, column=1, padx=5, pady=5)
 
         # Entry for blacklist
-        self.blacklist_label = tk.Label(self.frame, text="Blacklist (comma-separated):")
-        self.blacklist_label.pack(padx=10, pady=5)
-        self.blacklist_entry = tk.Entry(self.frame, width=50)
-        self.blacklist_entry.pack(padx=10, pady=5)
+        self.blacklist_label = tk.Label(self.input_frame, text="Blacklist (comma-separated):")
+        self.blacklist_label.grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
+        self.blacklist_entry = tk.Entry(self.input_frame, width=50)
+        self.blacklist_entry.grid(row=1, column=1, padx=5, pady=5)
 
         # Button to load folder
-        self.load_button = tk.Button(self.frame, text="Load Folder", command=self.load_folder)
-        self.load_button.pack(padx=10, pady=10)
+        self.load_button = tk.Button(self.input_frame, text="Load Folder", command=self.load_folder)
+        self.load_button.grid(row=2, column=0, columnspan=2, pady=10)
+
+        # Add save and load buttons
+        self.save_button = tk.Button(self.input_frame, text="Save Data", command=self.save_all_image_data)
+        self.save_button.grid(row=3, column=0, pady=5)
+        self.load_button = tk.Button(self.input_frame, text="Load Data", command=self.load_all_image_data)
+        self.load_button.grid(row=3, column=1, pady=5)
+
+        # Add saving and loading sessions
+        self.save_session_button = tk.Button(self.input_frame, text="Save Session", command=self.save_session)
+        self.save_session_button.grid(row=4, column=0, pady=5)
+        self.load_session_button = tk.Button(self.input_frame, text="Load Session", command=self.load_session)
+        self.load_session_button.grid(row=4, column=1, pady=5)
+
+        # Checkbox for auto loading data
+        self.auto_load_var = tk.BooleanVar(value=True)
+        self.auto_load_checkbox = tk.Checkbutton(self.input_frame, text="Automatically Load Data", variable=self.auto_load_var)
+        self.auto_load_checkbox.grid(row=5, column=0, columnspan=2, pady=5)
 
         # Add a Treeview to display the folder structure
         self.tree = ttk.Treeview(self.frame)
         self.tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-         # Add save and load buttons
-        self.save_button = tk.Button(self.frame, text="Save Data", command=self.save_all_image_data)
-        self.save_button.pack(padx=10, pady=5)
-        self.load_button = tk.Button(self.frame, text="Load Data", command=self.load_all_image_data)
-        self.load_button.pack(padx=10, pady=5)
-
-        # Add saving and loading sessions
-        self.save_session_button = tk.Button(self.frame, text="Save Session", command=self.save_session)
-        self.save_session_button.pack(padx=10, pady=5)
-        self.load_session_button = tk.Button(self.frame, text="Load Session", command=self.load_session)
-        self.load_session_button.pack(padx=10, pady=5)
-        
-        # Checkbox for auto loading data
-        self.auto_load_var = tk.BooleanVar(value=True)
-        self.auto_load_checkbox = tk.Checkbutton(self.frame, text="Automatically Load Data", variable=self.auto_load_var)
-        self.auto_load_checkbox.pack(padx=10, pady=5)
 
     def hide_window(self, event=None):
         if not self.hidden:
@@ -177,21 +181,24 @@ class MainApp:
     def save_session(self):
         session_name = simpledialog.askstring("Save Session", "Enter a name for the session:")
         if session_name:
-            use_combined = simpledialog.askstring("Save Session", "Use combined collections? (yes/no):")
-            if use_combined.lower() == "yes":
+            use_combined = messagebox.askyesno("Save Session", "Use combined collections?")
+            if use_combined:
                 collections_to_save = [self.image_viewer_app.collections[0]]  # Combined collection
                 print(f"Saving combined collection: {collections_to_save}")
             else:
                 collections_to_save = self.image_viewer_app.original_collections  # Original collections
                 print(f"Saving original collections: {collections_to_save}")
-
-            session_dir = os.path.join("sessions")
+            
+            # Ensure the session directory exists
+            session_dir = "sessions"
             if not os.path.exists(session_dir):
                 os.makedirs(session_dir)
-            filename = os.path.join(session_dir, f"{session_name}.pkl")
-            with open(filename, "wb") as f:
+
+            # Save the session data
+            session_path = os.path.join(session_dir, f"{session_name}.pkl")
+            with open(session_path, "wb") as f:
                 pickle.dump(collections_to_save, f)
-            print(f"Session saved as {filename}")
+            print(f"Session '{session_name}' saved.")
 
     def load_session(self):
         filename = filedialog.askopenfilename(title="Select Session File", initialdir="sessions", filetypes=[("Pickle Files", "*.pkl")])
