@@ -147,6 +147,7 @@ class MainApp:
         if os.path.exists(filename):
             with open(filename, "rb") as f:
                 data = pickle.load(f)
+                data['path'] = image_path  # Ensure the correct path is used
             return SmartImage(**data)
         return None
 

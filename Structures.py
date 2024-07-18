@@ -127,7 +127,6 @@ class Group:
 
         for item in os.listdir(folder_path):
             item_path = os.path.join(folder_path, item)
-
             if os.path.isdir(item_path):
                 child_group = Group(item_path, item, parent=self, depth=self.depth + 1)
                 self.add_child_group(child_group)

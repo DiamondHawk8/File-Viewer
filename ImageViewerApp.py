@@ -243,6 +243,9 @@ class ImageViewerApp:
 
     def display_image(self, smart_image):
         # Open the image using the path from the SmartImage object
+
+        # TESTING 
+        print(f"---------------------------ATTEMPT TO OPEN {smart_image} with path: {smart_image.path}")
         image = Image.open(smart_image.path)
 
         # Retrieve zoom level, panx, and pany from the SmartImage object
