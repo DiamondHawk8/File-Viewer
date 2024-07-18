@@ -85,7 +85,7 @@ class ImageViewerApp:
 
         self.current_gif = None
 
-    def load_collections(self, folder_path=None, whitelist=None, blacklist=None, *collections):
+    def load_collections(self, folder_path=None, whitelist=None, blacklist=None, collections=[]):
         if folder_path:
             # Extract the folder name to use as the collection name
             collection_name = os.path.basename(folder_path)
@@ -213,7 +213,7 @@ class ImageViewerApp:
         # Notebook/tab binding
         self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
 
-
+        self.root.bind('<Control-k>', self.refresh_notebook)
 
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
@@ -221,7 +221,7 @@ class ImageViewerApp:
         self.root.bind('<Control-m>', self.display_current_image) 
         self.root.bind('<Control-x>', self.decrease_animation_speed) 
         self.root.bind('<Control-f>', self.update_widgets) 
-        self.root.bind('<Control-k>', self.refresh_notebook)
+        
 
 
         self.root.bind('<space>', self.next_frame)
@@ -244,8 +244,6 @@ class ImageViewerApp:
     def display_image(self, smart_image):
         # Open the image using the path from the SmartImage object
 
-        # TESTING 
-        print(f"---------------------------ATTEMPT TO OPEN {smart_image} with path: {smart_image.path}")
         image = Image.open(smart_image.path)
 
         # Retrieve zoom level, panx, and pany from the SmartImage object
