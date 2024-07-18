@@ -180,9 +180,11 @@ class MainApp:
             use_combined = simpledialog.askstring("Save Session", "Use combined collections? (yes/no):")
             if use_combined.lower() == "yes":
                 collections_to_save = [self.image_viewer_app.collections[0]]  # Combined collection
+                print(f"Saving combined collection: {collections_to_save}")
             else:
                 collections_to_save = self.image_viewer_app.original_collections  # Original collections
-            
+                print(f"Saving original collections: {collections_to_save}")
+
             session_dir = os.path.join("sessions")
             if not os.path.exists(session_dir):
                 os.makedirs(session_dir)
@@ -194,6 +196,7 @@ class MainApp:
     def load_session(self):
         filename = filedialog.askopenfilename(title="Select Session File", initialdir="sessions", filetypes=[("Pickle Files", "*.pkl")])
         if filename:
+            print(f"Loading session from {filename}")
             with open(filename, "rb") as f:
                 loaded_collections = pickle.load(f)
             
@@ -204,7 +207,7 @@ class MainApp:
             self.hide_window()  # Automatically hide window
             self.root.deiconify()  # Show the main window now that collections have been loaded
             print(f"Session loaded from {filename}")
-        
+            
 if __name__ == "__main__":
     root = tk.Tk()
     app = MainApp(root)

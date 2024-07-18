@@ -24,6 +24,9 @@ class ImageViewerApp:
         # Attribute for original list of collections for saving purposes:
         self.original_collections = []
 
+        # Structure for keeping track of the image you were looking at when switching groups
+        self.stored_indices = {}
+
         # Indexing attributes
         self.current_collection_index = 0
         self.current_group_index = 0
@@ -82,8 +85,6 @@ class ImageViewerApp:
 
         self.current_gif = None
 
-
-
     def load_collections(self, folder_path=None, whitelist=None, blacklist=None, *collections):
         if folder_path:
             # Extract the folder name to use as the collection name
@@ -99,9 +100,10 @@ class ImageViewerApp:
             if isinstance(collection, Collection):
                 self.collections.append(collection)
 
-        # Set initial indices for navigation if collections has any Collection objects
+        # Store the original collections as a copy of the current collections
+        self.original_collections = self.collections.copy()
+
         if self.collections:
-            self.stored_indices = {}
             self.display_current_image()
 
     def create_widgets(self):
@@ -191,6 +193,7 @@ class ImageViewerApp:
 
         self.root.bind('<Control-w>', self.close_group)
         self.root.bind('<Control-Shift-T>', self.reopen_group)
+
         # --- UI binds ---
         self.root.bind('<Control-Key-1>', self.ui_manager.toggle_name)
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_notebook)
@@ -218,6 +221,7 @@ class ImageViewerApp:
         self.root.bind('<Control-m>', self.display_current_image) 
         self.root.bind('<Control-x>', self.decrease_animation_speed) 
         self.root.bind('<Control-f>', self.update_widgets) 
+        self.root.bind('<Control-k>', self.refresh_notebook)
 
 
         self.root.bind('<space>', self.next_frame)
@@ -842,7 +846,7 @@ class ImageViewerApp:
             self.root.bind('<s>', self.pan_down)
         self.typing = not self.typing
 
-    def refresh_notebook(self):
+    def refresh_notebook(self, event = None):
         # Clear the current tabs
         for tab in self.ui_manager.notebook.tabs():
             self.ui_manager.notebook.forget(tab)
