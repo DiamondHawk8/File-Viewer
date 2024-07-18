@@ -197,6 +197,7 @@ class Collection:
                     # Load images and subfolders for each group
                     group.load_images()  
                     self.add_group(group)
+                    print(f"Group added: {folder_name} with {len(group.images)} images")
 
     def __repr__(self):
         """String representation of the Collection object for debugging."""
