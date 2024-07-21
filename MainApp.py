@@ -6,6 +6,11 @@ from ImageViewerApp import ImageViewerApp
 from Structures import Collection, SmartImage
 import random
 
+#TODO Fix whitelist/blacklist to check inside folders for whitelist
+#TODO Ensure smartgif data is saved properly
+#TODO implement pause feature for gifs
+#TODO refactor and clean up testing code
+
 class MainApp:
     def __init__(self, root):
         self.root = root
