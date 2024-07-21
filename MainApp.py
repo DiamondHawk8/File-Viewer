@@ -4,12 +4,6 @@ from tkinter import filedialog, simpledialog, ttk, messagebox
 import pickle
 from ImageViewerApp import ImageViewerApp
 from Structures import Collection, SmartImage
-import random
-
-#TODO Fix whitelist/blacklist to check inside folders for whitelist
-#TODO Ensure smartgif data is saved properly
-#TODO implement pause feature for gifs
-#TODO refactor and clean up testing code
 
 class MainApp:
     def __init__(self, root):
@@ -22,7 +16,6 @@ class MainApp:
         # Initialize attributes
         self.image_viewer_app = None
         self.collections = []
-        
 
         self.initialize_ui()
 
@@ -31,7 +24,6 @@ class MainApp:
 
         # Bind hotkey to hide and show dialog
         self.root.bind('<Control-h>', self.hide_window)
-
 
     def initialize_ui(self):
         self.dialog = tk.Toplevel(self.root)
@@ -95,6 +87,73 @@ class MainApp:
             self.collections.append(new_collection)
             self.display_collections_in_treeview()
 
+    def load_collections(self):
+        if hasattr(self, 'folder_path') and self.folder_path:
+            self.apply_whitelist_blacklist()
+            self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
+            self.image_viewer_app.collections = self.collections
+            self.display_collections_in_treeview()
+            self.hide_window()  # Automatically hide window
+            self.root.deiconify()  # Show the main window now that collections have been loaded
+
+            # Automatically load data if the checkbox is checked
+            if self.auto_load_var.get():
+                self.load_all_image_data()
+            
+            self.image_viewer_app.display_current_image()
+
+    def apply_whitelist_blacklist(self):
+        whitelist = self.whitelist_entry.get().split(",")
+        blacklist = self.blacklist_entry.get().split(",")
+
+        if whitelist:
+            whitelist = [item.strip() for item in whitelist if item.strip()]
+        if blacklist:
+            blacklist = [item.strip() for item in blacklist if item.strip()]
+
+        filtered_collections = []
+
+        # For every collection in collections
+        for collection in self.collections:
+
+            # Create filtered version of each collection
+            filtered_collection = Collection(collection.base_folder_path, collection.name)
+
+            # For each group in every collection
+            for group in collection.groups:
+            
+                # If the group should be included and is not already in the collection
+                if self._should_include_group(group, whitelist, blacklist) and group not in filtered_collection.groups:
+                    filtered_collection.add_group(group)
+                else:
+                    self._filter_group_recursive(group, filtered_collection, whitelist, blacklist)
+            filtered_collections.append(filtered_collection)
+
+#Group1,NestledFolder1
+
+
+        self.collections = filtered_collections
+
+    def _should_include_group(self, group, whitelist, blacklist):
+        if whitelist and group.name in whitelist:
+            print(f"{group.name} was found in whitelist\n")
+            return True
+        
+        # Check if the group or any of its parents are in the blacklist
+        current_group = group
+        while current_group:
+            if blacklist and current_group.name in blacklist:
+                return False
+            current_group = current_group.parent
+        
+        # Return False if there is a whitelist present, True if not
+        return not whitelist
+
+    def _filter_group_recursive(self, group, filtered_collection, whitelist, blacklist):
+        for child in group.children:
+            if self._should_include_group(child, whitelist, blacklist):
+                filtered_collection.add_group(child)
+            self._filter_group_recursive(child, filtered_collection, whitelist, blacklist)
 
     def hide_window(self, event=None):
         if not self.hidden:
@@ -102,50 +161,6 @@ class MainApp:
         else:
             self.dialog.deiconify()
         self.hidden = not self.hidden
-
-    def load_folder(self):
-        folder_path = filedialog.askdirectory(title="Select Folder")
-        if folder_path:
-            whitelist = self.whitelist_entry.get().split(",")
-            blacklist = self.blacklist_entry.get().split(",")
-
-            if whitelist:
-                whitelist = [item.strip() for item in whitelist if item.strip()]
-            if blacklist:
-                blacklist = [item.strip() for item in blacklist if item.strip()]
-
-            if not self.image_viewer_app:
-                self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
-
-            self.image_viewer_app.load_collections(folder_path, whitelist=whitelist, blacklist=blacklist)
-            self.display_collections_in_treeview()
-            self.hide_window()  # Automatically hide window
-            self.root.deiconify()  # Show the main window now that groups have been loaded
-
-            # Automatically load data if the checkbox is checked
-            if self.auto_load_var.get():
-                self.load_all_image_data()
-
-    def load_collections(self):
-        if hasattr(self, 'folder_path') and self.folder_path:
-            whitelist = self.whitelist_entry.get().split(",")
-            blacklist = self.blacklist_entry.get().split(",")
-
-            if whitelist:
-                whitelist = [item.strip() for item in whitelist if item.strip()]
-            if blacklist:
-                blacklist = [item.strip() for item in blacklist if item.strip()]
-
-            self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
-            self.image_viewer_app.load_collections(self.folder_path, whitelist, blacklist)
-            self.display_collections_in_treeview()
-            self.hide_window()  # Automatically hide window
-            self.root.deiconify()  # Show the main window now that groups have been loaded
-
-            # Automatically load data if the checkbox is checked
-            if self.auto_load_var.get():
-                self.load_all_image_data()
-
 
     def display_collections_in_treeview(self):
         self.tree.delete(*self.tree.get_children())
@@ -212,14 +227,10 @@ class MainApp:
                         if loaded_image:
                             image.__dict__.update(loaded_image.__dict__)
             print("All image data loaded.")
-        
+
     def ensure_directory(self, path):
         if not os.path.exists(path):
             os.makedirs(path)
-
-
-
-
 
     def save_session(self):
         session_name = simpledialog.askstring("Save Session", "Enter a name for the session:")
@@ -231,7 +242,7 @@ class MainApp:
             else:
                 collections_to_save = self.image_viewer_app.original_collections  # Original collections
                 print(f"Saving original collections: {collections_to_save}")
-            
+
             # Ensure the session directory exists
             session_dir = "sessions"
             if not os.path.exists(session_dir):
@@ -249,7 +260,7 @@ class MainApp:
             print(f"Loading session from {filename}")
             with open(filename, "rb") as f:
                 loaded_collections = pickle.load(f)
-            
+
             self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
             self.image_viewer_app.collections = loaded_collections
             self.image_viewer_app.combine_collections()
@@ -257,7 +268,7 @@ class MainApp:
             self.hide_window()  # Automatically hide window
             self.root.deiconify()  # Show the main window now that collections have been loaded
             print(f"Session loaded from {filename}")
-            
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = MainApp(root)
