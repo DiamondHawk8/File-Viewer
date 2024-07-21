@@ -5,6 +5,11 @@ import pickle
 from ImageViewerApp import ImageViewerApp
 from Structures import Collection, SmartImage
 
+# TODO Ensure smartgif data is saved properly
+# TODO implement pause feature for gifs
+# TODO refactor and clean up code
+
+
 class MainApp:
     def __init__(self, root):
         self.root = root
