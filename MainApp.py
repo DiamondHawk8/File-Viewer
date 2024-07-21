@@ -76,40 +76,9 @@ class MainApp:
         self.auto_load_checkbox = tk.Checkbutton(self.frame, text="Automatically Load Data", variable=self.auto_load_var)
         self.auto_load_checkbox.grid(row=7, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W)
 
-        # Create the advanced selection frame
-        self.create_advanced_selection_frame()
-
         # Allow the Treeview to expand
         self.frame.grid_rowconfigure(4, weight=1)
         self.frame.grid_columnconfigure(1, weight=1)
-
-    def create_advanced_selection_frame(self):
-        advanced_frame = tk.LabelFrame(self.dialog, text="Advanced Selection")
-        advanced_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # Entry for number of groups
-        self.num_groups_label = tk.Label(advanced_frame, text="Number of groups to select:")
-        self.num_groups_label.grid(row=0, column=0, padx=10, pady=5, sticky=tk.W)
-        self.num_groups_entry = tk.Entry(advanced_frame, width=10)
-        self.num_groups_entry.grid(row=0, column=1, padx=10, pady=5, sticky=tk.W)
-
-        # Entry for number of subgroups
-        self.num_subgroups_label = tk.Label(advanced_frame, text="Number of subgroups to select (per group):")
-        self.num_subgroups_label.grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
-        self.num_subgroups_entry = tk.Entry(advanced_frame, width=10)
-        self.num_subgroups_entry.grid(row=1, column=1, padx=10, pady=5, sticky=tk.W)
-
-        # Entry for specific group selections
-        self.specific_groups_label = tk.Label(advanced_frame, text="Specify groups (syntax: Folder1(3), Folder2(5)):")
-        self.specific_groups_label.grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
-        self.specific_groups_entry = tk.Entry(advanced_frame, width=50)
-        self.specific_groups_entry.grid(row=2, column=1, padx=10, pady=5, sticky=tk.W)
-
-        # Button to generate random set
-        self.random_set_button = tk.Button(advanced_frame, text="Generate Random Set", command=self.generate_random_set)
-        self.random_set_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
-
-        return advanced_frame
 
     def select_folder(self):
         self.folder_path = filedialog.askdirectory(title="Select Folder")
@@ -220,81 +189,6 @@ class MainApp:
     def update_widgets(self, *args, **kwargs):
         # Placeholder method for update callback
         print("Widgets updated with args:", args, "and kwargs:", kwargs)
-
-
-
-    def generate_random_set(self):
-        # Ensure the values are valid integers, otherwise set defaults
-        try:
-            num_groups = int(self.num_groups_entry.get())
-        except ValueError:
-            num_groups = 0
-
-        try:
-            num_subgroups = int(self.num_subgroups_entry.get())
-        except ValueError:
-            num_subgroups = 0
-
-        specific_groups_input = self.specific_groups_entry.get()
-
-        selected_groups = []
-
-        # Handle specific group selections
-        if specific_groups_input:
-            specific_groups = specific_groups_input.split(',')
-            for group_info in specific_groups:
-                group_name, count = group_info.strip().split('(')
-                count = int(count.rstrip(')'))
-
-                for collection in self.collections:
-                    for group in collection.groups:
-                        if group.name == group_name:
-                            selected_groups.extend(random.sample(group.children, min(count, len(group.children))))
-
-        # Handle random selection based on weight
-        all_groups = [group for collection in self.collections for group in collection.groups]
-        total_weight = sum(group.weight for group in all_groups)
-
-        while len(selected_groups) < num_groups and all_groups:
-            random_group = random.choices(all_groups, weights=[group.weight for group in all_groups], k=1)[0]
-            selected_groups.append(random_group)
-            all_groups.remove(random_group)
-
-        # Create a new collection from the selected groups
-        new_collection = Collection(base_folder_path="", name="Random Selection")
-        new_collection.groups = selected_groups
-
-        # Append the new collection to the existing collections
-        self.collections.append(new_collection)
-
-        # Load the new collection into the ImageViewerApp
-        self.image_viewer_app = ImageViewerApp(self.root, self.update_widgets)
-        self.image_viewer_app.load_collections(collections=self.collections)
-        self.display_collections_in_treeview()
-        self.root.deiconify()  # Show the main window now that groups have been loaded
-
-        # Automatically load data if the checkbox is checked
-        if self.auto_load_var.get():
-            self.load_all_image_data()
-
-
-        
-    def weighted_random_selection(self, items, num_selections):
-        total_weight = sum(item.weight for item in items)
-        selected_items = random.choices(items, weights=[item.weight for item in items], k=num_selections)
-        return selected_items
-
-    def parse_specific_group_selections(self, specific_group_selections):
-        group_counts = {}
-        selections = specific_group_selections.split(",")
-        for selection in selections:
-            group_name, count = selection.strip().split("(")
-            count = int(count.replace(")", ""))
-            group_counts[group_name.strip()] = count
-        return group_counts
-
-
-
 
     def save_all_image_data(self):
         if self.image_viewer_app:
