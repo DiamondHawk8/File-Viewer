@@ -198,10 +198,10 @@ class Collection:
 
 
 class GifImage(SmartImage):
-    def __init__(self, path, name, group, zoom_level=1.0, panx=0, pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, animation_speed=100):
-        super().__init__(path, name, group, zoom_level, panx, pany, series, index, offset, weight, tags, favorite)
+    def __init__(self, path, name, group, default_zoom_level=1.0, default_panx=0, default_pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, preconfig=[], durations = [], animation_speed=100):
+        super().__init__(path, name, group, default_zoom_level, default_panx, default_pany, series, index, offset, weight, tags, favorite, preconfig)
         self.frames = []
-        self.durations = []
+        self.durations = durations
         self.current_frame = 0
         self.animation = None
         self.animation_speed = animation_speed  # Speed in ms

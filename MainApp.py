@@ -3,10 +3,9 @@ import tkinter as tk
 from tkinter import filedialog, simpledialog, ttk, messagebox
 import pickle
 from ImageViewerApp import ImageViewerApp
-from Structures import Collection, SmartImage
+from Structures import Collection, SmartImage, GifImage
 
-# TODO Ensure smartgif data is saved properly
-# TODO implement pause feature for gifs
+
 # TODO refactor and clean up code
 
 
@@ -192,6 +191,12 @@ class MainApp:
             "favorite": image.favorite,
             "preconfig": image.preconfig,
         }
+
+        # Add additional fields if the image is a SmartGIF
+        if isinstance(image, GifImage):
+            data["durations"] = image.durations
+            data["animation_speed"] = image.animation_speed
+
         # Create directory structure
         base_dir = "data"
         group_dir = os.path.join(base_dir, image.group)
@@ -208,7 +213,12 @@ class MainApp:
             with open(filename, "rb") as f:
                 data = pickle.load(f)
                 data['path'] = image_path  # Ensure the correct path is used
-            return SmartImage(**data)
+            
+            # Create the appropriate instance based on the data
+            if "durations" in data and "animation_speed" in data:
+                return GifImage(**data)
+            else:
+                return SmartImage(**data)
         return None
 
     def update_widgets(self, *args, **kwargs):

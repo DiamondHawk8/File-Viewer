@@ -194,6 +194,8 @@ class ImageViewerApp:
         self.root.bind('<Control-w>', self.close_group)
         self.root.bind('<Control-Shift-T>', self.reopen_group)
 
+        self.root.bind('<space>', self.pause_gif)
+
         # --- UI binds ---
         self.root.bind('<Control-Key-1>', self.ui_manager.toggle_name)
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_notebook)
@@ -223,8 +225,6 @@ class ImageViewerApp:
         self.root.bind('<Control-f>', self.update_widgets) 
         
 
-
-        self.root.bind('<space>', self.next_frame)
 
         # Locked
         self.root.bind('<Control-a>', self.lock_keybind)
@@ -284,7 +284,7 @@ class ImageViewerApp:
         self.image_label.config(image=img)
         self.image_label.image = img
 
-    def display_current_image(self, event=None):
+    def display_current_image(self, event = None):
 
         current_collection = self.collections[self.current_collection_index]
         current_group = current_collection.groups[self.current_group_index]
@@ -369,6 +369,9 @@ class ImageViewerApp:
                 # Schedule the next frame update with the correct duration
                 next_duration = self.current_gif.get_next_frame_duration()
                 self.animation = self.root.after(next_duration, self.update_gif_frame)
+            elif self.current_gif.is_animated and self.current_gif.is_paused:
+                self.image_label.config(image=img)
+        
 
     def decrease_animation_speed(self, event = None):
         print("AAA")
@@ -490,7 +493,7 @@ class ImageViewerApp:
     def toggle_wrap(self, event = None):
         self.image_wrap = not self.image_wrap
     
-    def close_group(self, event=None):
+    def close_group(self, event = None):
         # removes the current tab if it is able to
         with self.lock:
             current_collection = self.collections[self.current_collection_index]
@@ -531,7 +534,7 @@ class ImageViewerApp:
         self.display_current_image()
         print(f"Closed group and updated display to group '{current_collection.groups[self.current_group_index].name}'")
 
-    def reopen_group(self, event=None):
+    def reopen_group(self, event = None):
         with self.lock:
             if self.current_gif and self.current_gif.is_animated:
                 self.current_gif.stop()
@@ -561,6 +564,20 @@ class ImageViewerApp:
 
         self.display_current_image()
         print(f"Reopened group '{group.name}' and updated display")
+
+    def pause_gif(self, event = None):
+        print("pausing gif")
+        
+        with self.lock:
+            if self.current_gif and self.current_gif.is_paused:
+                self.current_gif.resume()
+            elif self.current_gif:
+                self.current_gif.pause()
+
+                # set the current frame back one so that it pauses on the correct frame:
+                self.current_gif.current_frame = self.current_gif.current_frame - 1
+                
+        self.update_gif_frame()
 
 # ----------------Transformation Methods----------------
 
@@ -600,7 +617,7 @@ class ImageViewerApp:
             current_image.resize_frames()
         self.display_current_image()
 
-    def pan_down(self, event=None):
+    def pan_down(self, event = None):
         current_image = self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
         current_image.pany += 5
         if isinstance(current_image, GifImage):
