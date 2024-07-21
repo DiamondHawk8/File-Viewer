@@ -7,9 +7,6 @@ from UIManager import UIManager
 import threading
 
 
-# Full path to current image: self.collections[self.current_collection_index].groups[self.current_group_index].images[self.current_image_index]
-
-
 class ImageViewerApp:
     def __init__(self, root, update_widgets_callback):
         
@@ -49,9 +46,6 @@ class ImageViewerApp:
         # Set title and set width and height
         self.root.title("Image Viewer")
         self.root.geometry(f'{self.screen_width}x{self.screen_height}')
-
-        # Universal string variable (not currently in use)
-        self.entry_var = tk.StringVar()
 
         # Create and place base image widget
         self.create_widgets()
