@@ -6,9 +6,6 @@ from ImageViewerApp import ImageViewerApp
 from Structures import Collection, SmartImage, GifImage
 
 
-# TODO refactor and clean up code
-
-
 class MainApp:
     def __init__(self, root):
         self.root = root

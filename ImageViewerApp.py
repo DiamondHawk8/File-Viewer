@@ -63,9 +63,6 @@ class ImageViewerApp:
         # Bind keys to respective functions
         self.initialize_keybinds()
 
-        # TESTING load specific collection
-        # self.load_collections("ZTakeoutTest\Takeout\Drive")
-
         # Notebook created boolean
         self.notebook = False
 
@@ -159,44 +156,44 @@ class ImageViewerApp:
         
     def initialize_keybinds(self):
 
+        # Image navigation and zoom
         self.root.bind('<Up>', self.zoom_in)
         self.root.bind('<Down>', self.zoom_out)
-
         self.root.bind('<Left>', self.previous_image)
         self.root.bind('<Right>', self.next_image)
 
+        # Group navigation
         self.root.bind('<Control-Shift-Tab>', self.previous_group)
         self.root.bind('<Control-Tab>', self.next_group)
 
+        # Panning
         self.root.bind('<a>', self.pan_left)
         self.root.bind('<d>', self.pan_right)
         self.root.bind('<w>', self.pan_up)
         self.root.bind('<s>', self.pan_down)
 
+        # Reset and configuration
         self.root.bind('<Control-r>', self.reset)
+        self.root.bind('<Control-Shift-R>', self.default_reset)
 
-        # Lowercase binds
+        # Save and load configurations
         self.root.bind('<Control-Shift-s>', self.save_default_configuration)
         self.root.bind('<Control-s>', self.save_configuration)
         self.root.bind('<Control-l>', self.load_configuration)
-        # Capital binds
-        self.root.bind('<Control-Shift-S>', self.save_default_configuration)
-        self.root.bind('<Control-S>', self.save_configuration)
-        self.root.bind('<Control-L>', self.load_configuration)
-        self.root.bind('<Control-Shift-R>', self.default_reset)
 
+        # Toggle dialogs and favorites
         self.root.bind('<Control-d>', self.toggle_dialogs)
-
         self.root.bind('<Control-f>', self.toggle_favorite)
-
         self.root.bind('<Control-m>', self.toggle_wrap)
 
+        # Group management
         self.root.bind('<Control-w>', self.close_group)
         self.root.bind('<Control-Shift-T>', self.reopen_group)
 
+        # GIF controls
         self.root.bind('<space>', self.pause_gif)
 
-        # --- UI binds ---
+        # UI toggles
         self.root.bind('<Control-Key-1>', self.ui_manager.toggle_name)
         self.root.bind('<Control-Key-2>', self.ui_manager.toggle_notebook)
         self.root.bind('<Control-Key-3>', self.ui_manager.toggle_details)
@@ -206,29 +203,24 @@ class ImageViewerApp:
         self.root.bind('<Control-Key-7>', self.toggle_keybinds_and_zoom_pan_menu)
         self.root.bind('<Control-Key-8>', self.ui_manager.toggle_group)
         self.root.bind('<Control-Key-9>', self.toggle_gif_duration_menu_and_keybinds)
-   
-        # Collection/Save Management
-        self.root.bind('<Control-Shift-C>', self.combine_collections)
-   
 
-     
+        # Collection management
+        self.root.bind('<Control-Shift-C>', self.combine_collections)
+
         # Notebook/tab binding
         self.ui_manager.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
-
         self.root.bind('<Control-k>', self.refresh_notebook)
 
         # Testing
         self.root.bind('<Control-Right>', self.force_next_image)
         self.root.bind('<Control-p>', self.print_group_weight)
-        self.root.bind('<Control-m>', self.display_current_image) 
-        self.root.bind('<Control-x>', self.decrease_animation_speed) 
-        self.root.bind('<Control-f>', self.update_widgets) 
-        
-
+        self.root.bind('<Control-m>', self.display_current_image)
+        self.root.bind('<Control-x>', self.decrease_animation_speed)
+        self.root.bind('<Control-f>', self.update_widgets)
 
         # Locked
         self.root.bind('<Control-a>', self.lock_keybind)
-        
+
     def trim_groups(self):
         # Method for deleting empty groups
         for collection in self.collections:
@@ -372,7 +364,6 @@ class ImageViewerApp:
             elif self.current_gif.is_animated and self.current_gif.is_paused:
                 self.image_label.config(image=img)
         
-
     def decrease_animation_speed(self, event = None):
         print("AAA")
         self.current_gif.increase_frame_durations(100)
@@ -576,7 +567,7 @@ class ImageViewerApp:
 
                 # set the current frame back one so that it pauses on the correct frame:
                 self.current_gif.current_frame = self.current_gif.current_frame - 1
-                
+
         self.update_gif_frame()
 
 # ----------------Transformation Methods----------------
@@ -1014,31 +1005,4 @@ class ImageViewerApp:
     
     def print_group_weight(self, event = None):
         print(self.collections[self.current_collection_index].groups[self.current_group_index].weight)
-
-    def next_frame(self, event = None):
-        self.update_gif_frame()
-    
-def print_collection_details(collection):
-    for group in collection.groups:
-        print(f"Group: {group.name}, Depth: {group.depth}, Images: {len(group.images)}")
-        for image in group.images:
-            print(f"  Image: {image.name}, Path: {image.path}")
-        if group.children:
-            print_child_groups(group.children)
-
-def print_child_groups(children, level=1):
-    for child in children:
-        indent = "  " * level
-        print(f"{indent}Child Group: {child.name}, Depth: {child.depth}, Images: {len(child.images)}")
-        for image in child.images:
-            print(f"{indent}  Image: {image.name}, Path: {image.path}")
-        if child.children:
-            print_child_groups(child.children, level + 1)
-
-
-
-
-    
-
-
 

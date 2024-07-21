@@ -253,7 +253,6 @@ class UIManager:
         self.new_duration_entry = tk.Entry(self.gif_duration_frame, width=10)
         self.set_duration_button = tk.Button(self.gif_duration_frame, text="Set Duration", command=self.set_gif_frame_duration)
 
-
     def layout_widgets(self):
 
         # Pack the basic details labels
@@ -343,9 +342,6 @@ class UIManager:
         self.new_duration_label.pack(side=tk.LEFT, padx=5, pady=5)
         self.new_duration_entry.pack(side=tk.LEFT, padx=5, pady=5)
         self.set_duration_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-
-
 
     def update_image_details(self, image, group = None):
         # Update the basic details
@@ -461,7 +457,6 @@ class UIManager:
             self.gif_duration_frame.place(anchor=tk.NE, relx=0.95, rely=0.15)
         self.gif_duration_visible = not self.gif_duration_visible
         self.root.focus_set()
-
 
 # Other
     def add_tags(self):
