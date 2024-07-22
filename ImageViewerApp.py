@@ -171,7 +171,7 @@ class ImageViewerApp:
         self.root.bind('<Control-Shift-R>', self.default_reset)
 
         # Save and load configurations
-        self.root.bind('<Control-Shift-s>', self.save_default_configuration)
+        self.root.bind('<Control-Shift-S>', self.save_default_configuration)
         self.root.bind('<Control-s>', self.save_configuration)
         self.root.bind('<Control-l>', self.load_configuration)
 
