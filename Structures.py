@@ -1,11 +1,15 @@
-from PIL import Image, ImageTk, ImageSequence
-import itertools
+from PIL import Image, ImageSequence
+
 import os
 
-# Hierarchy: Collection > Group > SmartImage
 
 class SmartImage:
-    def __init__(self, path, name, group, default_zoom_level=1.0, default_panx=0, default_pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, preconfig=[]):
+    def __init__(self, path, name, group, default_zoom_level=1.0, default_panx=0, default_pany=0, series="", index=0,
+                 offset=None, weight=1.0, tags=None, favorite=False, preconfig=None):
+        if preconfig is None:
+            preconfig = []
+        if tags is None:
+            tags = []
         self.path = path
         self.name = name
         self.group = group  # Reference to the parent group
@@ -15,7 +19,7 @@ class SmartImage:
         self.default_pany = default_pany
         self.panx = self.default_panx
         self.pany = self.default_pany
-        
+
         # String representing a series of images that are related
         self.series = series
 
@@ -66,7 +70,8 @@ class SmartImage:
         self.panx = self.default_panx
         self.pany = self.default_pany
 
-    def modify(self, name=None, zoom_level=None, panx=None, pany=None, series=None, index=None, tags=None, favorite=None, weight=None):
+    def modify(self, name=None, zoom_level=None, panx=None, pany=None, series=None, index=None, tags=None,
+               favorite=None, weight=None):
         if name is not None:
             self.name = name
         if zoom_level is not None:
@@ -93,15 +98,13 @@ class SmartImage:
                 f"offset={self.offset}, tags={self.tags}, favorite={self.favorite}, weight={self.weight})")
 
 
-    
-
 class Group:
     def __init__(self, folder_path, name, weight=1.0, favorite=False, images=None, parent=None, depth=0):
         if images is None:
             images = []
         self.folder_path = folder_path
-        self.name = name  
-        self.weight = weight 
+        self.name = name
+        self.weight = weight
         self.favorite = favorite
         self.images = images
         self.parent = parent
@@ -140,17 +143,18 @@ class Group:
                     self.add_image(SmartImage(item_path, item, group=self.name))
 
     def __repr__(self):
-        return (f"Group(name={self.name}, folder_path={self.folder_path}, weight={self.weight}, favorite={self.favorite}, "
-                f"images={len(self.images)}, children={len(self.children)}, depth={self.depth})")
+        return (
+            f"Group(name={self.name}, folder_path={self.folder_path}, weight={self.weight}, favorite={self.favorite}, "
+            f"images={len(self.images)}, children={len(self.children)}, depth={self.depth})")
 
 
 class Collection:
     def __init__(self, base_folder_path, name, weight=1.0, favorite=False, groups=None):
         if groups is None:
             groups = []
-        self.base_folder_path = base_folder_path  
-        self.name = name  
-        self.weight = weight  
+        self.base_folder_path = base_folder_path
+        self.name = name
+        self.weight = weight
         self.favorite = favorite
         self.groups = groups
 
@@ -177,13 +181,13 @@ class Collection:
                 # Create a new Group for each subfolder in the base folder
                 group = Group(folder_path, folder_name)
                 # Load images and subfolders for each group
-                group.load_images()  
+                group.load_images()
                 self.add_group(group)
                 self.add_child_groups(group)
                 print(f"Group added: {folder_name} with {len(group.images)} images")
 
             #else:
-                #print(f"Not a directory: {folder_path}")
+            #print(f"Not a directory: {folder_path}")
 
     def add_child_groups(self, group):
         """Add child groups recursively."""
@@ -196,10 +200,17 @@ class Collection:
                 f"favorite={self.favorite}, groups={len(self.groups)})")
 
 
-
 class GifImage(SmartImage):
-    def __init__(self, path, name, group, default_zoom_level=1.0, default_panx=0, default_pany=0, series="", index=0, offset=None, weight=1.0, tags=[], favorite=False, preconfig=[], durations = [], animation_speed=100):
-        super().__init__(path, name, group, default_zoom_level, default_panx, default_pany, series, index, offset, weight, tags, favorite, preconfig)
+    def __init__(self, path, name, group, default_zoom_level=1.0, default_panx=0, default_pany=0, series="", index=0,
+                 offset=None, weight=1.0, tags=None, favorite=False, preconfig=None, durations=None, animation_speed=100):
+        super().__init__(path, name, group, default_zoom_level, default_panx, default_pany, series, index, offset,
+                         weight, tags, favorite, preconfig)
+        if durations is None:
+            durations = []
+        if preconfig is None:
+            preconfig = []
+        if tags is None:
+            tags = []
         self.frames = []
         self.durations = durations
         self.current_frame = 0
@@ -219,9 +230,6 @@ class GifImage(SmartImage):
                     self.durations.append(duration)
         except Exception as e:
             print(f"Error loading GIF: {e}")
-
-    def get_next_frame_duration(self):
-        return self.durations[self.current_frame]
 
     def play(self):
         self.is_animated = True
@@ -273,4 +281,3 @@ class GifImage(SmartImage):
             new_height = int(frame.height * scale_factor * zoom_level)
 
             self.frames[i] = frame.resize((new_width, new_height), Image.LANCZOS)
-
